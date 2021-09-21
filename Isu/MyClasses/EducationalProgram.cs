@@ -4,19 +4,18 @@ namespace Isu.MyClasses
 {
     public class EducationalProgram
     {
+        private List<Course> _courses;
         public EducationalProgram()
         {
-            CourseNumbers = new List<CourseNumber>
+            _courses = new List<Course>
             {
-                new CourseNumber(1),
-                new CourseNumber(2),
-                new CourseNumber(3),
-                new CourseNumber(4),
-
-                // 4 years of studying (suffering)
+                new Course(1),
+                new Course(2),
+                new Course(3),
+                new Course(4),
             };
         }
 
-        public List<CourseNumber> CourseNumbers { get; }
+        public IReadOnlyList<Course> Courses => _courses;
     }
 }

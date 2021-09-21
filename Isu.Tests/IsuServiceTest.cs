@@ -20,10 +20,10 @@ namespace Isu.Tests
         [Test]
         public void AddStudentToGroup_StudentHasGroupAndGroupContainsStudent()
         {
-            Group newGroup = _isuService.AddGroup("M3201");
-            _isuService.AddStudent(newGroup, "a");
+            Group newGroup = _isuService.AddGroup(new GroupName("M3201"));
+            _isuService.AddStudent(new Group("M3201"), "a");
             
-            Assert.AreEqual(_isuService.FindGroup("M3201").Students[0].Name, "a");
+            Assert.AreEqual(_isuService.FindGroup(new GroupName("M3201")).Students[0].Name, "a");
         }
 
         [Test]
@@ -31,7 +31,7 @@ namespace Isu.Tests
         {
             Assert.Catch<IsuException>(() =>
             {
-                Group newGroup = _isuService.AddGroup("M3201");
+                Group newGroup = _isuService.AddGroup(new GroupName("M3201"));
 
                 char name = 'a';
                 for (int i = 0; i < 20; ++i)
@@ -40,7 +40,7 @@ namespace Isu.Tests
                     ++name;
                 }
                 
-                _isuService.AddStudent(_isuService.FindGroup("M3201"), "grazhdanin X");
+                _isuService.AddStudent(_isuService.FindGroup(new GroupName("M3201")), "grazhdanin X");
             });
         }
 
@@ -49,20 +49,20 @@ namespace Isu.Tests
         {
             Assert.Catch<IsuException>(() =>
             {
-                _isuService.AddGroup("M3501");
+                _isuService.AddGroup(new GroupName("M3501"));
             });
         }
 
         [Test]
         public void TransferStudentToAnotherGroup_GroupChanged()
         {
-            Group group1 = _isuService.AddGroup("M3201");
+            Group group1 = _isuService.AddGroup(new GroupName("M3201"));
             _isuService.AddStudent(group1, "a");
-            Group group2 = _isuService.AddGroup("M3202");
+            Group group2 = _isuService.AddGroup(new GroupName("M3202"));
             _isuService.ChangeStudentGroup(_isuService.FindStudent("a"), group2);
             
-            Assert.AreEqual(_isuService.FindGroup("M3201").Students.Count, 0);
-            Assert.AreEqual(_isuService.FindGroup("M3202").Students[0].Name, "a");
+            Assert.AreEqual(_isuService.FindGroup(new GroupName("M3201")).Students.Count, 0);
+            Assert.AreEqual(_isuService.FindGroup(new GroupName("M3202")).Students[0].Name, "a");
         }
     }
 }

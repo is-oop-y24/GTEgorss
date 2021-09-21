@@ -6,32 +6,36 @@ namespace Isu.MyClasses
 {
     public class Group
     {
-        private const int MaxNumberOfPeopleInAGroup = 20;
+        private const int MaxStudentsNumber = 20;
+        private List<Student> _students;
         public Group(string name)
         {
-            if (name.Length != 5)
-                throw new IsuException($"Error. Wrong group number. Lenght: {name.Length}. Should be 5.");
-            if (name[0] != 'M' || name[1] != '3')
-                throw new IsuException($"Error. Wrong program: {name[0]}{name[1]}. Should be 'M'.");
-            if (!(name[2] >= '1' && name[2] <= '4')) throw new IsuException($"Error. Wrong course number: {name[2]}.");
-            string groupNumber = name.Substring(3);
-            if (!(Convert.ToInt32(groupNumber) >= 0 && Convert.ToInt32(groupNumber) <= 39))
-                throw new IsuException($"Error. Wrong group number: {name[3]}{name[4]}.");
-            Name = name;
-            Students = new List<Student>();
+            GroupName = new GroupName(name);
+            _students = new List<Student>();
         }
 
-        public string Name { get; }
-        public List<Student> Students { get; }
+        public Group(GroupName groupName)
+        {
+            GroupName = groupName;
+            _students = new List<Student>();
+        }
+
+        public GroupName GroupName { get; }
+        public IReadOnlyList<Student> Students => _students;
 
         public void AddStudent(Student student)
         {
-            if (Students.Count + 1 > MaxNumberOfPeopleInAGroup)
+            if (_students.Count == MaxStudentsNumber)
             {
-                throw new IsuException($"Error. Too many people in group {Name}. Unable to add student {student.Name}, id: {student.Id}.");
+                throw new IsuException($"Error. Too many people in group {GroupName.Name}. Unable to add student {student.Name}, id: {student.Id}.");
             }
 
-            Students.Add(student);
+            _students.Add(student);
+        }
+
+        public void RemoveStudent(Student student)
+        {
+            _students.Remove(student);
         }
     }
 }

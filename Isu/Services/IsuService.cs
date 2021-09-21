@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Isu.MyClasses;
 using Isu.Tools;
 
@@ -11,35 +12,24 @@ namespace Isu.Services
 
         public IsuService()
         {
-            NewEducationalProgram = new EducationalProgram();
+            EducationalProgram = new EducationalProgram();
         }
 
-        public EducationalProgram NewEducationalProgram { get; }
+        public EducationalProgram EducationalProgram { get; }
 
         public List<Group> FindGroups(CourseNumber courseNumber)
         {
-            if (courseNumber.Number < 1 || courseNumber.Number > 4)
-                throw new IsuException("Error. Wrong course number.", new IndexOutOfRangeException()); // TOOD check what is the output
-            return NewEducationalProgram.CourseNumbers[courseNumber.Number - 1].Groups; // -1 because array indexes begin from 0
+            return EducationalProgram.Courses.FirstOrDefault(x => x.CourseNumber.Number == courseNumber.Number)?.Groups.ToList();
         }
 
-        public Group FindGroup(string groupName)
+        public Group FindGroup(GroupName groupName)
         {
-            Group group = new Group(groupName); // Basically, to check validity of the groupName
-            List<Group> groups = FindGroups(new CourseNumber(group.Name[2] - '0'));
+            List<Group> groups = FindGroups(new CourseNumber((int)char.GetNumericValue(groupName.Name[2])));
 
-            foreach (Group gr in groups)
-            {
-                if (gr.Name == group.Name)
-                {
-                    return gr;
-                }
-            }
-
-            return null;
+            return groups.FirstOrDefault(x => x.GroupName.Name == groupName.Name);
         }
 
-        public List<Student> FindStudents(string groupName)
+        public List<Student> FindStudents(GroupName groupName)
         {
             Group group = FindGroup(groupName);
 
@@ -48,7 +38,7 @@ namespace Isu.Services
                 return new List<Student>();
             }
 
-            return group.Students;
+            return group.Students.ToList();
         }
 
         public List<Student> FindStudents(CourseNumber courseNumber)
@@ -66,17 +56,11 @@ namespace Isu.Services
 
         public Student GetStudent(int id)
         {
-            foreach (CourseNumber courseNumber in NewEducationalProgram.CourseNumbers)
+            foreach (Course courseNumber in EducationalProgram.Courses)
             {
-                List<Student> studentsToFindIn = FindStudents(courseNumber);
+                List<Student> studentsToFindIn = FindStudents(courseNumber.CourseNumber);
 
-                foreach (Student student in studentsToFindIn)
-                {
-                    if (student.Id == id)
-                    {
-                        return student;
-                    }
-                }
+                return studentsToFindIn.FirstOrDefault(x => x.Id == id);
             }
 
             throw new IsuException($"Error. Wasn't able to find a student with id: {id}");
@@ -84,52 +68,51 @@ namespace Isu.Services
 
         public Student FindStudent(string name)
         {
-            foreach (CourseNumber courseNumber in NewEducationalProgram.CourseNumbers)
+            foreach (Course courseNumber in EducationalProgram.Courses)
             {
-                List<Student> studentsToFindIn = FindStudents(courseNumber);
+                List<Student> studentsFind = FindStudents(courseNumber.CourseNumber);
+                Student foundStudent = studentsFind.FirstOrDefault(x => x.Name == name);
 
-                foreach (Student student in studentsToFindIn)
-                {
-                    if (student.Name == name)
-                    {
-                        return student;
-                    }
-                }
+                if (foundStudent != null) return foundStudent;
             }
 
             return null;
         }
 
-        public Group AddGroup(string name)
+        public Group AddGroup(GroupName name)
         {
             if (FindGroup(name) != null)
             {
-                throw new IsuException($"Error. Group {name} already exists");
+                throw new IsuException($"Error. Group {name.Name} already exists");
             }
 
             Group newGroup = new Group(name);
-            NewEducationalProgram.CourseNumbers[newGroup.Name[2] - '0' - 1].AddGroup(newGroup); // -1 because array indexes begin from 0
+            EducationalProgram.Courses
+                .FirstOrDefault(x => x.CourseNumber.Number == (int)char.GetNumericValue(newGroup.GroupName.Name[2]))
+                ?.AddGroup(newGroup);
             return newGroup;
         }
 
         public Student AddStudent(Group group, string name)
         {
-            if (FindGroup(group.Name) == null)
+            if (FindGroup(group.GroupName) == null)
             {
-                throw new IsuException($"Error. Group {group.Name} to which student {name} has to be assigned doesn't exist.");
+                throw new IsuException(
+                    $"Error. Group {group.GroupName.Name} to which student {name} has to be assigned doesn't exist.");
             }
 
             Student student = new Student(name, _nextId);
             ++_nextId;
-            NewEducationalProgram.CourseNumbers[group.Name[2] - '0' - 1].AddStudent(group, student); // -1 because array indexes begin from 0
+            EducationalProgram.Courses.FirstOrDefault(x => x.CourseNumber.Number == (int)char.GetNumericValue(group.GroupName.Name[2]))
+                ?.AddStudent(group, student);
             return student;
         }
 
         public Group FindStudentsGroup(Student student)
         {
-            foreach (CourseNumber cn in NewEducationalProgram.CourseNumbers)
+            foreach (Course cn in EducationalProgram.Courses)
             {
-                List<Group> groups = FindGroups(cn);
+                List<Group> groups = FindGroups(cn.CourseNumber);
 
                 foreach (Group gr in groups)
                 {
@@ -148,9 +131,9 @@ namespace Isu.Services
 
         public void ChangeStudentGroup(Student student, Group newGroup)
         {
-            if (FindGroup(newGroup.Name) == null)
+            if (FindGroup(newGroup.GroupName) == null)
             {
-                throw new IsuException($"Error. There is no group {newGroup.Name}");
+                throw new IsuException($"Error. There is no group {newGroup.GroupName.Name}");
             }
 
             Group previousGroup = FindStudentsGroup(student);
@@ -160,8 +143,8 @@ namespace Isu.Services
                 throw new IsuException($"There is no such student {student.Name}, id: {student.Id}");
             }
 
-            previousGroup.Students.Remove(student);
-            newGroup.Students.Add(student);
+            previousGroup.RemoveStudent(student);
+            newGroup.AddStudent(student);
         }
     }
 }
