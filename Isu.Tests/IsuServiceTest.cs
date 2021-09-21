@@ -1,24 +1,29 @@
+using System;
+using Isu.MyClasses;
 using Isu.Services;
 using Isu.Tools;
 using NUnit.Framework;
 
 namespace Isu.Tests
 {
+    [TestFixture]
     public class Tests
     {
-        private IIsuService _isuService;
+        private IsuService _isuService;
 
         [SetUp]
         public void Setup()
         {
-            //TODO: implement
-            _isuService = null;
+            _isuService = new IsuService();
         }
 
         [Test]
         public void AddStudentToGroup_StudentHasGroupAndGroupContainsStudent()
         {
-            Assert.Fail();
+            Group newGroup = _isuService.AddGroup("M3201");
+            _isuService.AddStudent(newGroup, "a");
+            
+            Assert.AreEqual(_isuService.FindGroup("M3201").Students[0].Name, "a");
         }
 
         [Test]
@@ -26,7 +31,16 @@ namespace Isu.Tests
         {
             Assert.Catch<IsuException>(() =>
             {
+                Group newGroup = _isuService.AddGroup("M3201");
+
+                char name = 'a';
+                for (int i = 0; i < 20; ++i)
+                {
+                    _isuService.AddStudent(newGroup, Char.ToString(name));
+                    ++name;
+                }
                 
+                _isuService.AddStudent(_isuService.FindGroup("M3201"), "grazhdanin X");
             });
         }
 
@@ -35,17 +49,20 @@ namespace Isu.Tests
         {
             Assert.Catch<IsuException>(() =>
             {
-
+                _isuService.AddGroup("M3501");
             });
         }
 
         [Test]
         public void TransferStudentToAnotherGroup_GroupChanged()
         {
-            Assert.Catch<IsuException>(() =>
-            {
-
-            });
+            Group group1 = _isuService.AddGroup("M3201");
+            _isuService.AddStudent(group1, "a");
+            Group group2 = _isuService.AddGroup("M3202");
+            _isuService.ChangeStudentGroup(_isuService.FindStudent("a"), group2);
+            
+            Assert.AreEqual(_isuService.FindGroup("M3201").Students.Count, 0);
+            Assert.AreEqual(_isuService.FindGroup("M3202").Students[0].Name, "a");
         }
     }
 }
