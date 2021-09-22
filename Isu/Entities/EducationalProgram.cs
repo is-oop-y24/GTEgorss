@@ -9,10 +9,10 @@ namespace Isu.MyClasses
         {
             _courses = new List<Course>
             {
-                new Course(1),
-                new Course(2),
-                new Course(3),
-                new Course(4),
+                new Course(new CourseNumber(1)),
+                new Course(new CourseNumber(2)),
+                new Course(new CourseNumber(3)),
+                new Course(new CourseNumber(4)),
             };
         }
 

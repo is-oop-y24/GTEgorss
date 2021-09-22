@@ -7,9 +7,9 @@ namespace Isu.MyClasses
     public class Course
     {
         private List<Group> _groups;
-        public Course(int number)
+        public Course(CourseNumber courseNumber)
         {
-            CourseNumber = new CourseNumber(number);
+            CourseNumber = courseNumber;
             _groups = new List<Group>();
         }
 

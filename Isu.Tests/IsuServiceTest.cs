@@ -21,7 +21,7 @@ namespace Isu.Tests
         public void AddStudentToGroup_StudentHasGroupAndGroupContainsStudent()
         {
             Group newGroup = _isuService.AddGroup(new GroupName("M3201"));
-            _isuService.AddStudent(new Group("M3201"), "a");
+            _isuService.AddStudent(new Group(new GroupName("M3201")), "a");
             
             Assert.AreEqual(_isuService.FindGroup(new GroupName("M3201")).Students[0].Name, "a");
         }

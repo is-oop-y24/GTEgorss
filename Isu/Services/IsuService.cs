@@ -19,14 +19,26 @@ namespace Isu.Services
 
         public List<Group> FindGroups(CourseNumber courseNumber)
         {
-            return EducationalProgram.Courses.FirstOrDefault(x => x.CourseNumber.Number == courseNumber.Number)?.Groups.ToList();
+            Course course =
+                EducationalProgram.Courses.FirstOrDefault(c => c.CourseNumber.Number == courseNumber.Number);
+            if (course == null)
+            {
+                throw new IsuException($"Error. There is no course {courseNumber.Number}");
+            }
+
+            return course.Groups.ToList();
         }
 
         public Group FindGroup(GroupName groupName)
         {
             List<Group> groups = FindGroups(new CourseNumber((int)char.GetNumericValue(groupName.Name[2])));
 
-            return groups.FirstOrDefault(x => x.GroupName.Name == groupName.Name);
+            if (groups.Count == 0)
+            {
+                return null;
+            }
+
+            return groups.FirstOrDefault(g => g.GroupName.Name == groupName.Name);
         }
 
         public List<Student> FindStudents(GroupName groupName)
@@ -35,7 +47,7 @@ namespace Isu.Services
 
             if (group == null)
             {
-                return new List<Student>();
+                throw new IsuException($"Error. Group {groupName} doesn't exist.");
             }
 
             return group.Students.ToList();
@@ -43,40 +55,45 @@ namespace Isu.Services
 
         public List<Student> FindStudents(CourseNumber courseNumber)
         {
-            List<Student> students = new List<Student>();
-            List<Group> groupsToFindIn = FindGroups(courseNumber);
-
-            foreach (Group gr in groupsToFindIn)
+            if (EducationalProgram.Courses.FirstOrDefault(c => c.CourseNumber.Number == courseNumber.Number) == null)
             {
-                students.AddRange(gr.Students);
+                throw new IsuException($"Error. There is no course {courseNumber.Number}");
             }
 
-            return students;
+            List<Group> groups = FindGroups(courseNumber);
+
+            return groups.SelectMany(g => g.Students).ToList();
         }
 
         public Student GetStudent(int id)
         {
-            foreach (Course courseNumber in EducationalProgram.Courses)
-            {
-                List<Student> studentsToFindIn = FindStudents(courseNumber.CourseNumber);
+            List<Group> groups = EducationalProgram.Courses.SelectMany(c => c.Groups).ToList();
 
-                return studentsToFindIn.FirstOrDefault(x => x.Id == id);
+            if (groups.Count == 0)
+            {
+                throw new IsuException($"Error. There is no groups, thus no {id} student.");
             }
 
-            throw new IsuException($"Error. Wasn't able to find a student with id: {id}");
+            Student student = groups.SelectMany(g => g.Students).FirstOrDefault(x => x.Id == id);
+
+            if (student == null)
+            {
+                throw new IsuException($"Error. Wasn't able to find a student with id: {id}");
+            }
+
+            return student;
         }
 
         public Student FindStudent(string name)
         {
-            foreach (Course courseNumber in EducationalProgram.Courses)
-            {
-                List<Student> studentsFind = FindStudents(courseNumber.CourseNumber);
-                Student foundStudent = studentsFind.FirstOrDefault(x => x.Name == name);
+            List<Group> groups = EducationalProgram.Courses.SelectMany(c => c.Groups).ToList();
 
-                if (foundStudent != null) return foundStudent;
+            if (groups.Count == 0)
+            {
+                return null;
             }
 
-            return null;
+            return groups.SelectMany(g => g.Students).FirstOrDefault(x => x.Name == name);
         }
 
         public Group AddGroup(GroupName name)
@@ -87,9 +104,16 @@ namespace Isu.Services
             }
 
             Group newGroup = new Group(name);
-            EducationalProgram.Courses
-                .FirstOrDefault(x => x.CourseNumber.Number == (int)char.GetNumericValue(newGroup.GroupName.Name[2]))
-                ?.AddGroup(newGroup);
+            Course course = EducationalProgram.Courses.FirstOrDefault(x =>
+                x.CourseNumber.Number == (int)char.GetNumericValue(newGroup.GroupName.Name[2]));
+
+            if (course == null)
+            {
+                throw new IsuException($"Error. Course {newGroup.GroupName.Name[2]} doesn't exist");
+            }
+
+            course.AddGroup(newGroup);
+
             return newGroup;
         }
 
@@ -101,32 +125,22 @@ namespace Isu.Services
                     $"Error. Group {group.GroupName.Name} to which student {name} has to be assigned doesn't exist.");
             }
 
-            Student student = new Student(name, _nextId);
-            ++_nextId;
-            EducationalProgram.Courses.FirstOrDefault(x => x.CourseNumber.Number == (int)char.GetNumericValue(group.GroupName.Name[2]))
-                ?.AddStudent(group, student);
+            Student student = new Student(name, _nextId++);
+            Course course = EducationalProgram.Courses.FirstOrDefault(x =>
+                x.CourseNumber.Number == (int)char.GetNumericValue(group.GroupName.Name[2]));
+
+            if (course == null)
+            {
+                throw new IsuException($"Error. Course {group.GroupName.Name[2]} doesn't exist");
+            }
+
+            course.AddStudent(group, student);
             return student;
         }
 
         public Group FindStudentsGroup(Student student)
         {
-            foreach (Course cn in EducationalProgram.Courses)
-            {
-                List<Group> groups = FindGroups(cn.CourseNumber);
-
-                foreach (Group gr in groups)
-                {
-                    foreach (Student st in gr.Students)
-                    {
-                        if (st == student)
-                        {
-                            return gr;
-                        }
-                    }
-                }
-            }
-
-            return null;
+            return EducationalProgram.Courses.SelectMany(c => c.Groups).FirstOrDefault(g => g.Contain(student));
         }
 
         public void ChangeStudentGroup(Student student, Group newGroup)

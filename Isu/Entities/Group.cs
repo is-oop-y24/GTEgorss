@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Isu.Tools;
 
 namespace Isu.MyClasses
@@ -8,11 +9,6 @@ namespace Isu.MyClasses
     {
         private const int MaxStudentsNumber = 20;
         private List<Student> _students;
-        public Group(string name)
-        {
-            GroupName = new GroupName(name);
-            _students = new List<Student>();
-        }
 
         public Group(GroupName groupName)
         {
@@ -36,6 +32,16 @@ namespace Isu.MyClasses
         public void RemoveStudent(Student student)
         {
             _students.Remove(student);
+        }
+
+        public bool Contain(Student student)
+        {
+            if (_students.FirstOrDefault(x => x == student) == null)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }
