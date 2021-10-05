@@ -10,7 +10,11 @@ namespace Shops.Entities
         {
             Name = name;
 
-            if (price < 0) throw new ShopException($"Error. Price cannot be less than 0. Tried: {price}");
+            if (price < 0)
+            {
+                throw new ShopException($"Error. Price cannot be less than 0. Tried: {price}");
+            }
+
             _price = price;
             Quantity = quantity;
         }
@@ -22,7 +26,11 @@ namespace Shops.Entities
             get => _price;
             set
             {
-                if (value < 0) throw new ShopException($"Error. Price cannot be less than 0. Tried: {value}");
+                if (value < 0)
+                {
+                    throw new ShopException($"Error. Price cannot be less than 0. Tried: {value}");
+                }
+
                 _price = value;
             }
         }
