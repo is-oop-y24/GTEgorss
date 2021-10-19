@@ -1,4 +1,7 @@
 using System.Collections.Generic;
+using System.Linq;
+using Isu.Entities;
+using Isu.Tools;
 
 namespace Isu.MyClasses
 {
@@ -7,15 +10,20 @@ namespace Isu.MyClasses
         private List<Course> _courses;
         public EducationalProgram()
         {
-            _courses = new List<Course>
-            {
-                new Course(new CourseNumber(1)),
-                new Course(new CourseNumber(2)),
-                new Course(new CourseNumber(3)),
-                new Course(new CourseNumber(4)),
-            };
+            _courses = new List<Course>();
         }
 
         public IReadOnlyList<Course> Courses => _courses;
+
+        public void AddCourse(CourseNumber courseNumber)
+        {
+            _courses.Add(new Course(courseNumber));
+        }
+
+        public Course FindCourse(CourseNumber courseNumber)
+        {
+            Course course = _courses.FirstOrDefault(x => x.CourseNumber.GetNumber() == courseNumber.GetNumber());
+            return course;
+        }
     }
 }
