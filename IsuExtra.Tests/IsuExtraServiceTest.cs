@@ -33,7 +33,7 @@ namespace IsuExtra.Tests
                 _isuExtraService.AddOgnpCourse(new OgnpCourseNumber("N3"));
                 Assert.AreEqual("N3",
                     _isuExtraService.Ognp.EducationalProgram.FindCourse(new OgnpCourseNumber("N3")).CourseNumber
-                        .GetNumber());
+                        .Number);
             }
 
             [Test]
@@ -59,6 +59,7 @@ namespace IsuExtra.Tests
                 Assert.Catch<IsuExtraException>(() =>
                 {
                     _isuExtraService.Ognp.AddGroup(new OgnpGroupName("M31"));
+                    _isuExtraService.AddStudent(_student, new OgnpCourseNumber("M3"));
                     _isuExtraService.AddStudent(_student, new OgnpCourseNumber("M3"));
                 });
             }

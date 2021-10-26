@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Isu.Entities;
-using Isu.MyClasses;
 using Isu.Tools;
 
 namespace Isu.Services
@@ -16,7 +14,7 @@ namespace Isu.Services
             EducationalProgram = new EducationalProgram();
             for (int i = 1; i <= numberOfCourses; ++i)
             {
-                EducationalProgram.AddCourse(new IsuCourseNumber(i));
+                EducationalProgram.AddCourse(new IsuCourseNumber(i.ToString()));
             }
         }
 
@@ -30,10 +28,10 @@ namespace Isu.Services
         public List<Group> FindGroups(CourseNumber courseNumber)
         {
             Course course =
-                EducationalProgram.Courses.FirstOrDefault(c => c.CourseNumber.GetNumber() == courseNumber.GetNumber());
+                EducationalProgram.Courses.FirstOrDefault(c => c.CourseNumber.Number == courseNumber.Number);
             if (course == null)
             {
-                throw new IsuException($"Error. There is no course {courseNumber.GetNumber()}");
+                throw new IsuException($"Error. There is no course {courseNumber.Number}");
             }
 
             return course.Groups.ToList();
@@ -41,22 +39,14 @@ namespace Isu.Services
 
         public Group FindGroup(GroupName groupName)
         {
-            List<Group> groups;
-            if (groupName.Name.Length == 5)
-            {
-                groups = FindGroups(new IsuCourseNumber((int)char.GetNumericValue(groupName.Name[2])));
-            }
-            else
-            {
-                groups = FindGroups(new OgnpCourseNumber(groupName.Name[..2]));
-            }
+            List<Group> groups = FindGroups(new CourseNumber(groupName.GetCourseId()));
 
             if (groups.Count == 0)
             {
                 return null;
             }
 
-            return groups.FirstOrDefault(g => g.GroupName.Name == groupName.Name);
+            return groups.FirstOrDefault(g => g.GroupName.Equals(groupName));
         }
 
         public List<Student> FindStudents(GroupName groupName)
@@ -73,9 +63,9 @@ namespace Isu.Services
 
         public List<Student> FindStudents(CourseNumber courseNumber)
         {
-            if (EducationalProgram.Courses.FirstOrDefault(c => c.CourseNumber.GetNumber() == courseNumber.GetNumber()) == null)
+            if (EducationalProgram.Courses.FirstOrDefault(c => c.CourseNumber.Equals(courseNumber)) == null)
             {
-                throw new IsuException($"Error. There is no course {courseNumber.GetNumber()}");
+                throw new IsuException($"Error. There is no course {courseNumber.Number}");
             }
 
             List<Group> groups = FindGroups(courseNumber);
@@ -122,21 +112,12 @@ namespace Isu.Services
             }
 
             Group newGroup = new Group(name);
-            Course course;
-            if (name.Name.Length == 5)
-            {
-                course = EducationalProgram.Courses.FirstOrDefault(x =>
-                    x.CourseNumber.GetNumber() == newGroup.GroupName.Name[2].ToString());
-            }
-            else
-            {
-                course = EducationalProgram.Courses.FirstOrDefault(x =>
-                    x.CourseNumber.GetNumber() == newGroup.GroupName.Name[..2]);
-            }
+            Course course = EducationalProgram.Courses.FirstOrDefault(x =>
+                x.CourseNumber.Number == newGroup.GroupName.GetCourseId());
 
             if (course == null)
             {
-                throw new IsuException($"Error. Course {newGroup.GroupName.Name[2]} doesn't exist");
+                throw new IsuException($"Error. Course {newGroup.GroupName.GetCourseId()} doesn't exist");
             }
 
             course.AddGroup(newGroup);
@@ -154,11 +135,11 @@ namespace Isu.Services
 
             Student student = new Student(name, _nextId++);
             Course course = EducationalProgram.Courses.FirstOrDefault(x =>
-                x.CourseNumber.GetNumber() == group.GroupName.Name[2].ToString());
+                x.CourseNumber.Number == group.GroupName.GetCourseId());
 
             if (course == null)
             {
-                throw new IsuException($"Error. Course {group.GroupName.Name[2]} doesn't exist");
+                throw new IsuException($"Error. Course {group.GroupName.GetCourseId()} doesn't exist");
             }
 
             course.AddStudent(group, student);

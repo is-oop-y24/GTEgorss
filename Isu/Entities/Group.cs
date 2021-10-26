@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using Isu.MyClasses;
 using Isu.Tools;
 
 namespace Isu.Entities
@@ -40,7 +39,7 @@ namespace Isu.Entities
 
         public bool Contain(Student student)
         {
-            return _students.FirstOrDefault(x => x == student) != null;
+            return _students.Contains(student);
         }
 
         public void AddLesson(Lesson lesson)
@@ -50,18 +49,7 @@ namespace Isu.Entities
 
         public bool GroupsTimetableIntersected(Group anotherGroup)
         {
-            foreach (Lesson lesson in Lessons)
-            {
-                foreach (Lesson lessonExtra in anotherGroup.Lessons)
-                {
-                    if (lesson.IsIntersected(lessonExtra))
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
+            return Lessons.Any(lesson => anotherGroup.Lessons.Any(lessonExtra => lesson.IsIntersected(lessonExtra)));
         }
     }
 }

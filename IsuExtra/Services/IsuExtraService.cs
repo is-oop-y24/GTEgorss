@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Isu.Entities;
-using Isu.MyClasses;
 using Isu.Services;
 using IsuExtra.Tools;
 
@@ -24,96 +22,74 @@ namespace IsuExtra.Services
             if (Ognp.EducationalProgram.FindCourse(ognpCourseNumber) != null)
             {
                 throw new IsuExtraException(
-                    $"Error. There is already an OGNP course called {ognpCourseNumber.GetNumber()}");
+                    $"Error. There is already an OGNP course called {ognpCourseNumber.Number}");
             }
 
             Ognp.EducationalProgram.AddCourse(ognpCourseNumber);
         }
 
-        public Group AddStudent(Student student, CourseNumber courseNumber)
+        public Group AddStudent(Student student, OgnpCourseNumber ognpCourseNumber)
         {
-            Course ognpCourse = Ognp.EducationalProgram.FindCourse(courseNumber);
-            if (ognpCourse == null)
-            {
-                throw new IsuExtraException($"Error. There is no {courseNumber.GetNumber()} course.");
-            }
-
-            if (ognpCourse.Groups.Count == 0)
-            {
-                throw new IsuExtraException($"Error. There are no groups at {courseNumber.GetNumber()} OGNP course");
-            }
-
             if (student.IsAssignedToOgnpGroup)
-            {
                 throw new IsuExtraException($"Error. Student {student.Name} is already assigned to 2 OGNP courses.");
-            }
 
-            if (student.OgnpGroup1 != null && student.OgnpGroup1.Name[..2] == courseNumber.GetNumber())
-            {
-                throw new IsuExtraException(
-                    $"Error. Student {student.Name} is already assigned to {courseNumber.GetNumber()} OGNP course.");
-            }
+            if (student.OgnpGroup1 != null && student.OgnpGroup1.GetCourseId() == ognpCourseNumber.Number)
+                throw new IsuExtraException($"Error. Student {student.Name} is already assigned to {ognpCourseNumber.Number} OGNP course.");
 
-            Group groupForStudent = null;
             Group isuGroup = IsuService.FindStudentsGroup(student);
 
-            if (isuGroup.GroupName.Name[..2] == courseNumber.GetNumber())
-            {
+            if (isuGroup.GroupName.GetCourseId() == ognpCourseNumber.Number)
                 throw new IsuExtraException($"Error. Student {student.Name} can't join OGNP provided by thier course.");
-            }
 
+            return FindGroupForStudent(student, isuGroup, ognpCourseNumber);
+        }
+
+        public Group FindGroupForStudent(Student student, Group isuGroup, OgnpCourseNumber ognpCourseNumber)
+        {
+            Course ognpCourse = Ognp.EducationalProgram.FindCourse(ognpCourseNumber);
+
+            if (ognpCourse == null)
+                throw new IsuExtraException($"Error. There is no {ognpCourseNumber.Number} course.");
+
+            if (ognpCourse.Groups.Count == 0)
+                throw new IsuExtraException($"Error. There are no groups at {ognpCourseNumber.Number} OGNP course");
+
+            Group groupForStudent;
             if (student.OgnpGroup1 == null)
             {
-                foreach (Group ognpGroup in ognpCourse.Groups)
-                {
-                    bool isIntersected = ognpGroup.GroupsTimetableIntersected(isuGroup);
-
-                    if (!isIntersected)
-                    {
-                        groupForStudent = ognpGroup;
-                    }
-                }
+                groupForStudent = ognpCourse.Groups.FirstOrDefault(g => !g.GroupsTimetableIntersected(isuGroup));
 
                 if (groupForStudent == null)
                 {
-                    throw new IsuExtraException($"Error. Student {student.Name} can't be added to {courseNumber.GetNumber()}");
+                    throw new IsuExtraException(
+                        $"Error. Student {student.Name} can't be added to {ognpCourseNumber.Number}");
                 }
 
-                student.OgnpGroup1 = (OgnpGroupName)groupForStudent.GroupName;
-                if (student.OgnpGroup1 != null && student.OgnpGroup2 != null)
-                {
-                    student.IsAssignedToOgnpGroup = true;
-                }
+                student.OgnpGroup1 = groupForStudent.GroupName;
 
                 groupForStudent.AddStudent(student);
                 return groupForStudent;
             }
             else
             {
-                foreach (Group ognpGroup in ognpCourse.Groups)
+                if (ognpCourse.CourseNumber.Number == student.OgnpGroup1.GetCourseId())
                 {
-                    bool isIntersected = false;
-                    isIntersected |= ognpGroup.GroupsTimetableIntersected(isuGroup);
-
-                    Group ognpGroupExtra = Ognp.FindGroup(student.OgnpGroup1);
-                    isIntersected |= ognpGroup.GroupsTimetableIntersected(ognpGroupExtra);
-
-                    if (!isIntersected)
-                    {
-                        groupForStudent = ognpGroup;
-                    }
+                    throw new IsuExtraException(
+                        $"Error. {student.Name} has been already assigned to {ognpCourse.CourseNumber.Number}");
                 }
+
+                Group ognpGroupExtra = Ognp.FindGroup(student.OgnpGroup1);
+
+                groupForStudent = ognpCourse.Groups.FirstOrDefault(g =>
+                    !g.GroupsTimetableIntersected(isuGroup) && !g.GroupsTimetableIntersected(ognpGroupExtra));
 
                 if (groupForStudent == null)
                 {
-                    throw new IsuExtraException($"Error. Student {student.Name} can't be added to {courseNumber.GetNumber()}");
+                    throw new IsuExtraException(
+                        $"Error. Student {student.Name} can't be added to {ognpCourseNumber.Number}");
                 }
 
-                student.OgnpGroup2 = (OgnpGroupName)groupForStudent.GroupName;
-                if (student.OgnpGroup1 != null && student.OgnpGroup2 != null)
-                {
-                    student.IsAssignedToOgnpGroup = true;
-                }
+                student.OgnpGroup2 = groupForStudent.GroupName;
 
                 groupForStudent.AddStudent(student);
                 return groupForStudent;
@@ -126,31 +102,22 @@ namespace IsuExtra.Services
 
             if (course == null)
             {
-                throw new IsuExtraException($"Error. There is no {courseNumber.GetNumber()} OGNP course.");
+                throw new IsuExtraException($"Error. There is no {courseNumber.Number} OGNP course.");
             }
 
             course.RemoveStudent(student);
 
-            if (student.OgnpGroup1 != null && student.OgnpGroup1.Name[..2] == courseNumber.GetNumber())
+            if (student.OgnpGroup1 != null && student.OgnpGroup1.GetCourseId() == courseNumber.Number)
             {
                 student.OgnpGroup1 = null;
             }
 
-            if (student.OgnpGroup2 != null && student.OgnpGroup2.Name[..2] == courseNumber.GetNumber())
+            if (student.OgnpGroup2 != null && student.OgnpGroup2.GetCourseId() == courseNumber.Number)
             {
                 student.OgnpGroup2 = null;
             }
 
-            if (student.OgnpGroup1 == null && student.OgnpGroup2 != null)
-            {
-                student.OgnpGroup1 = student.OgnpGroup2;
-                student.OgnpGroup2 = null;
-            }
-
-            if (student.OgnpGroup1 == null || student.OgnpGroup2 == null)
-            {
-                student.IsAssignedToOgnpGroup = false;
-            }
+            student.FormatOgnpGroups();
         }
 
         public List<Student> FindStudents(CourseNumber courseNumber)
@@ -170,11 +137,9 @@ namespace IsuExtra.Services
             return students;
         }
 
-        public List<Group> FindGroups(CourseNumber courseNumber)
+        public List<Group> FindGroups(OgnpCourseNumber ognpCourseNumber)
         {
-            return courseNumber.GetNumber().ToString().Length == 1
-                ? IsuService.FindGroups(courseNumber)
-                : Ognp.FindGroups(courseNumber);
+            return Ognp.FindGroups(ognpCourseNumber);
         }
     }
 }

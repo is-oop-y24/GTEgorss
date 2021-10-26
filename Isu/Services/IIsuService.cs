@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Isu.Entities;
-using Isu.MyClasses;
 
 namespace Isu.Services
 {

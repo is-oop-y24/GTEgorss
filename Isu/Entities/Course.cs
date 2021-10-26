@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using Isu.MyClasses;
 using Isu.Tools;
 
 namespace Isu.Entities
@@ -25,7 +24,7 @@ namespace Isu.Entities
 
         public void AddStudent(Group group, Student student)
         {
-            Group existingGroup = _groups.FirstOrDefault(x => x.GroupName.Name == group.GroupName.Name);
+            Group existingGroup = _groups.FirstOrDefault(x => x.GroupName.Equals(group.GroupName));
             if (existingGroup == null) throw new IsuException($"Error. Group {group.GroupName.Name} doesn't exist.");
             existingGroup.AddStudent(student);
         }
@@ -34,7 +33,7 @@ namespace Isu.Entities
         {
             Group group = _groups.FirstOrDefault(g =>
             {
-                return g.Students.FirstOrDefault(s => s.Name == student.Name) != null;
+                return g.Students.FirstOrDefault(s => s.Equals(student)) != null;
             });
             return group;
         }
@@ -44,14 +43,14 @@ namespace Isu.Entities
             Student searchedStudent = null;
             Group group = _groups.FirstOrDefault(g =>
             {
-                searchedStudent = g.Students.FirstOrDefault(s => s.Name == student.Name);
+                searchedStudent = g.Students.FirstOrDefault(s => s.Equals(student));
                 return searchedStudent != null;
             });
 
             if (searchedStudent == null || group == null)
             {
                 throw new IsuException(
-                    $"Error. There is no student called {student.Name} at the {this.CourseNumber.GetNumber()} course.");
+                    $"Error. There is no student called {student.Name} at the {this.CourseNumber.Number} course.");
             }
 
             group.RemoveStudent(student);

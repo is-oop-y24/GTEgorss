@@ -4,17 +4,15 @@ namespace Isu.Entities
 {
     public class IsuCourseNumber : CourseNumber
     {
-        public IsuCourseNumber(int number)
+        private const int CourseNumberSize = 1;
+        private const char MinCourseNumber = '1';
+        private const char MaxCourseNumber = '4';
+        public IsuCourseNumber(string courseNumber)
+            : base(courseNumber)
         {
-            if (number < 1 || number > 4) throw new IsuException("Error. Wrong course number.");
-            Number = number;
-        }
-
-        public int Number { get; }
-
-        public override string GetNumber()
-        {
-            return Number.ToString();
+            if (courseNumber.Length != CourseNumberSize) throw new IsuException("Error. Wrong course number.");
+            if (courseNumber[0] < MinCourseNumber || courseNumber[0] > MaxCourseNumber) throw new IsuException("Error. Wrong course number.");
+            Number = courseNumber;
         }
     }
 }

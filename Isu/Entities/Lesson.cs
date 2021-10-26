@@ -5,11 +5,15 @@ namespace Isu.Entities
 {
     public class Lesson
     {
+        private const int NumberOfDays = 14;
+        private const int MaxHours = 23;
+        private const int MaxMinutes = 59;
+        private const double LessonDuration = 1.5;
         public Lesson(uint weekDay, uint timeBeginHours, uint timeBeginMinutes, string teacherName, string room)
         {
             WeekDay = weekDay;
 
-            if (WeekDay > 13)
+            if (WeekDay > NumberOfDays - 1)
             {
                 throw new IsuException("Error. Wrong day of the week.");
             }
@@ -17,7 +21,7 @@ namespace Isu.Entities
             TimeBeginHours = timeBeginHours;
             TimeBeginMinutes = timeBeginMinutes;
 
-            if (TimeBeginHours > 23 || TimeBeginMinutes > 59)
+            if (TimeBeginHours > MaxHours || TimeBeginMinutes > MaxMinutes)
             {
                 throw new IsuException(
                     $"Error. Wrong timetable of the lesson. TimeBeginHours = {timeBeginHours}; TimeBeginHours = {timeBeginMinutes}");
@@ -36,7 +40,7 @@ namespace Isu.Entities
         public bool IsIntersected(Lesson lesson)
         {
             return WeekDay == lesson.WeekDay &&
-                   Math.Abs(TimeBeginHours + (TimeBeginMinutes / 60.0) - lesson.TimeBeginHours - (lesson.TimeBeginMinutes / 60.0)) < 1.5;
+                   Math.Abs(TimeBeginHours + (TimeBeginMinutes / 60.0) - lesson.TimeBeginHours - (lesson.TimeBeginMinutes / 60.0)) < LessonDuration;
         }
     }
 }

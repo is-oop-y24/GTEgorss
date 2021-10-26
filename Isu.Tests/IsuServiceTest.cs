@@ -1,6 +1,5 @@
 using System;
 using Isu.Entities;
-using Isu.MyClasses;
 using Isu.Services;
 using Isu.Tools;
 using NUnit.Framework;

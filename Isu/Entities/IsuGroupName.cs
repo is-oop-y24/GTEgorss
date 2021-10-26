@@ -4,6 +4,13 @@ namespace Isu.Entities
 {
     public class IsuGroupName : GroupName
     {
+        private const int IndexOfCourse = 2;
+        private const int IsuGroupNameLength = 5;
+        private const char MinEducationalProgramName = 'A';
+        private const char MaxEducationalProgramName = 'Z';
+        private const char BachelorDegreeCode = '3';
+        private const char MinCourseNumber = '1';
+        private const char MaxCourseNumber = '4';
         public IsuGroupName(string name)
         {
             if (!IsValidGroupName(name))
@@ -14,19 +21,29 @@ namespace Isu.Entities
             Name = name;
         }
 
-        private bool IsValidGroupName(string name)
+        public override string GetCourseId()
         {
-            if (name.Length != 5)
+            return Name[IndexOfCourse].ToString();
+        }
+
+        private static bool IsValidGroupName(string name)
+        {
+            if (name.Length != IsuGroupNameLength)
             {
                 return false;
             }
 
-            if (name[0] != 'M' || name[1] != '3')
+            if (name[0] < MinEducationalProgramName || name[0] > MaxEducationalProgramName)
             {
                 return false;
             }
 
-            if (!(name[2] >= '1' && name[2] <= '4'))
+            if (name[1] != BachelorDegreeCode)
+            {
+                return false;
+            }
+
+            if (!(name[2] >= MinCourseNumber && name[2] <= MaxCourseNumber))
             {
                 return false;
             }

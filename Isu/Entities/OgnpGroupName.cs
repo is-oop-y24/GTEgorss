@@ -4,6 +4,11 @@ namespace Isu.Entities
 {
     public class OgnpGroupName : GroupName
     {
+        private const int IndexOfCourse = 2;
+        private const int OgnpGroupNameLength = 3;
+        private const char MinEducationalProgramName = 'A';
+        private const char MaxEducationalProgramName = 'Z';
+        private const char BachelorDegreeCode = '3';
         public OgnpGroupName(string name)
         {
             if (!IsValidGroupName(name))
@@ -14,19 +19,24 @@ namespace Isu.Entities
             Name = name;
         }
 
-        private bool IsValidGroupName(string name)
+        public override string GetCourseId()
         {
-            if (name.Length != 3)
+            return Name[..IndexOfCourse];
+        }
+
+        private static bool IsValidGroupName(string name)
+        {
+            if (name.Length != OgnpGroupNameLength)
             {
                 return false;
             }
 
-            if (name[1] != '3')
+            if (name[0] < MinEducationalProgramName || name[0] > MaxEducationalProgramName)
             {
                 return false;
             }
 
-            if (!(name[2] >= '1' && name[2] <= '9'))
+            if (name[1] != BachelorDegreeCode)
             {
                 return false;
             }

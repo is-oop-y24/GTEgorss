@@ -1,9 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
-using Isu.Entities;
-using Isu.Tools;
 
-namespace Isu.MyClasses
+namespace Isu.Entities
 {
     public class EducationalProgram
     {
@@ -22,7 +20,7 @@ namespace Isu.MyClasses
 
         public Course FindCourse(CourseNumber courseNumber)
         {
-            Course course = _courses.FirstOrDefault(x => x.CourseNumber.GetNumber() == courseNumber.GetNumber());
+            Course course = _courses.FirstOrDefault(x => x.CourseNumber.Equals(courseNumber));
             return course;
         }
     }
