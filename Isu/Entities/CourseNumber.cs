@@ -1,15 +1,32 @@
-using Isu.Tools;
+using System.Drawing;
 
-namespace Isu.MyClasses
+namespace Isu.Entities
 {
     public class CourseNumber
     {
-        public CourseNumber(int number)
+        public CourseNumber(string courseNumber)
         {
-            if (number < 1 || number > 4) throw new IsuException("Error. Wrong course number.");
-            Number = number;
+            Number = courseNumber;
         }
 
-        public int Number { get; }
+        public string Number { get; protected set; }
+
+        public override bool Equals(object obj)
+        {
+            if ((obj == null) || !this.GetType().Equals(obj.GetType()))
+            {
+                return false;
+            }
+            else
+            {
+                CourseNumber courseNumber = (CourseNumber)obj;
+                return Number == courseNumber.Number;
+            }
+        }
+
+        public override int GetHashCode()
+        {
+            return Number != null ? Number.GetHashCode() : 0;
+        }
     }
 }

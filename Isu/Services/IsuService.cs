@@ -1,7 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Isu.MyClasses;
+using Isu.Entities;
 using Isu.Tools;
 
 namespace Isu.Services
@@ -9,6 +8,15 @@ namespace Isu.Services
     public class IsuService : IIsuService
     {
         private int _nextId = 100000;
+
+        public IsuService(int numberOfCourses)
+        {
+            EducationalProgram = new EducationalProgram();
+            for (int i = 1; i <= numberOfCourses; ++i)
+            {
+                EducationalProgram.AddCourse(new IsuCourseNumber(i.ToString()));
+            }
+        }
 
         public IsuService()
         {
@@ -31,14 +39,14 @@ namespace Isu.Services
 
         public Group FindGroup(GroupName groupName)
         {
-            List<Group> groups = FindGroups(new CourseNumber((int)char.GetNumericValue(groupName.Name[2])));
+            List<Group> groups = FindGroups(new CourseNumber(groupName.GetCourseId()));
 
             if (groups.Count == 0)
             {
                 return null;
             }
 
-            return groups.FirstOrDefault(g => g.GroupName.Name == groupName.Name);
+            return groups.FirstOrDefault(g => g.GroupName.Equals(groupName));
         }
 
         public List<Student> FindStudents(GroupName groupName)
@@ -55,7 +63,7 @@ namespace Isu.Services
 
         public List<Student> FindStudents(CourseNumber courseNumber)
         {
-            if (EducationalProgram.Courses.FirstOrDefault(c => c.CourseNumber.Number == courseNumber.Number) == null)
+            if (EducationalProgram.Courses.FirstOrDefault(c => c.CourseNumber.Equals(courseNumber)) == null)
             {
                 throw new IsuException($"Error. There is no course {courseNumber.Number}");
             }
@@ -105,11 +113,11 @@ namespace Isu.Services
 
             Group newGroup = new Group(name);
             Course course = EducationalProgram.Courses.FirstOrDefault(x =>
-                x.CourseNumber.Number == (int)char.GetNumericValue(newGroup.GroupName.Name[2]));
+                x.CourseNumber.Number == newGroup.GroupName.GetCourseId());
 
             if (course == null)
             {
-                throw new IsuException($"Error. Course {newGroup.GroupName.Name[2]} doesn't exist");
+                throw new IsuException($"Error. Course {newGroup.GroupName.GetCourseId()} doesn't exist");
             }
 
             course.AddGroup(newGroup);
@@ -122,16 +130,16 @@ namespace Isu.Services
             if (FindGroup(group.GroupName) == null)
             {
                 throw new IsuException(
-                    $"Error. Group {group.GroupName.Name} to which student {name} has to be assigned doesn't exist.");
+                    $"Error. Group {group.GroupName.Name} which student {name} has to be assigned to doesn't exist.");
             }
 
             Student student = new Student(name, _nextId++);
             Course course = EducationalProgram.Courses.FirstOrDefault(x =>
-                x.CourseNumber.Number == (int)char.GetNumericValue(group.GroupName.Name[2]));
+                x.CourseNumber.Number == group.GroupName.GetCourseId());
 
             if (course == null)
             {
-                throw new IsuException($"Error. Course {group.GroupName.Name[2]} doesn't exist");
+                throw new IsuException($"Error. Course {group.GroupName.GetCourseId()} doesn't exist");
             }
 
             course.AddStudent(group, student);
@@ -159,6 +167,12 @@ namespace Isu.Services
 
             previousGroup.RemoveStudent(student);
             newGroup.AddStudent(student);
+        }
+
+        public void AddLesson(Lesson lesson, GroupName groupName)
+        {
+            Group group = FindGroup(groupName);
+            group.AddLesson(lesson);
         }
     }
 }

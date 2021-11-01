@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Isu.MyClasses;
+using Isu.Entities;
 
 namespace Isu.Services
 {
@@ -11,7 +11,7 @@ namespace Isu.Services
         Student GetStudent(int id);
         Student FindStudent(string name);
         List<Student> FindStudents(GroupName groupName);
-        List<Student> FindStudents(CourseNumber course);
+        List<Student> FindStudents(CourseNumber courseNumber);
 
         Group FindGroup(GroupName groupName);
         List<Group> FindGroups(CourseNumber course);
