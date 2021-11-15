@@ -1,50 +1,38 @@
+using System.Collections.Generic;
+using System.Linq;
 using Banks.Tools;
 
 namespace Banks.Entities
 {
     public class DepositBankAccount : IBankAccount
     {
-        private decimal _interest1;
-        private decimal _interest2;
-        private decimal _interest3;
-        public DepositBankAccount(int id, decimal interest1, decimal interest2, decimal interest3, bool doubtful, decimal transferLimit, int daysTillExpiry)
+        private const uint AverageMonthLengthInDays = 30;
+        private readonly List<ITransaction> _transactions;
+        private uint _transactionId = 10000000;
+        public DepositBankAccount(AccountId accountId, IInterest interest, bool doubtful, decimal transferLimit, uint daysTillExpiry)
         {
-            Id = id;
+            AccountId = accountId;
             Money = 0;
-            if (interest1 < 0 || interest2 < 0 || interest3 < 0) throw new BanksException("Error. Interest has to be positive.");
-            _interest1 = interest1;
-            _interest2 = interest2;
-            _interest3 = interest3;
+            Interest = interest;
             Doubtful = doubtful;
             TransferLimit = transferLimit;
             DaysTillExpiry = daysTillExpiry;
+            _transactions = new List<ITransaction>();
         }
 
-        public int Id { get; }
+        public AccountId AccountId { get; }
         public decimal Money { get; private set; }
         public decimal Commission => 0;
 
-        public decimal Interest
-        {
-            get
-            {
-                if (Money < 50000)
-                {
-                    return _interest1;
-                }
+        public IInterest Interest { get; private set; }
 
-                if (Money > 100000)
-                {
-                    return _interest3;
-                }
-
-                return _interest2;
-            }
-        }
-
-        public bool Doubtful { get; }
-        public decimal TransferLimit { get; }
-        public int? DaysTillExpiry { get; }
+        public bool Doubtful { get; set; }
+        public decimal TransferLimit { get; private set; }
+        public decimal CreditLimit => 0;
+        public uint DaysTillExpiry { get; private set; }
+        public decimal SumInterest { get; private set; }
+        public decimal SumCommission => 0;
+        public IReadOnlyList<ITransaction> Transactions => _transactions;
 
         public void AddMoney(decimal money)
         {
@@ -54,20 +42,141 @@ namespace Banks.Entities
             }
 
             Money += money;
+
+            if (GetTransaction(new TransactionId(AccountId, _transactionId + 1)) != null)
+                throw new BanksException($"Error. Transaction ID: {AccountId.BankId} {AccountId.ClientId} {AccountId.Id} {_transactionId + 1} already exists.");
+
+            _transactions.Add(new TransactionAdd(new TransactionId(AccountId, _transactionId++), money));
         }
 
         public void WithdrawMoney(decimal money)
         {
-            if (DaysTillExpiry != 0) throw new BanksException("Error. Impossible to withdraw money from not expired deposit account.");
+            if (DaysTillExpiry > 0) throw new BanksException("Error. Impossible to withdraw money from not expired deposit account.");
             if (money > Money) throw new BanksException("Error. Not enough money.");
             if (money < 0) throw new BanksException("Error. Impossible to withdraw negative amount of money.");
             if (Doubtful) throw new BanksException("Error. Impossible to withdraw money from doubtful account.");
             Money -= money;
+
+            if (GetTransaction(new TransactionId(AccountId, _transactionId + 1)) != null)
+                throw new BanksException($"Error. Transaction ID: {AccountId.BankId} {AccountId.ClientId} {AccountId.Id} {_transactionId + 1} already exists.");
+
+            _transactions.Add(new TransactionWithdraw(new TransactionId(AccountId, _transactionId++), money));
         }
 
-        public void TransferMoney(decimal money, int idTo)
+        public void SubtractMoney(decimal money)
         {
-            throw new System.NotImplementedException(); // TODO implement
+            if (money < 0)
+                throw new BanksException("Error. Cannot subtract negative amount of money.");
+            if (Money - money < 0)
+                throw new BanksException($"Error. Cannot subtract money = {money}.");
+
+            Money -= money;
+        }
+
+        public void AppendMoney(decimal money)
+        {
+            if (money < 0)
+                throw new BanksException("Error. Cannot append negative amount of money.");
+            Money += money;
+        }
+
+        public void TransferMoney(decimal money, IBankAccount accountTo)
+        {
+            if (money < 0)
+                throw new BanksException("Error. Cannot transfer negative amount of money.");
+            if (DaysTillExpiry > 0)
+                throw new BanksException("Error. Cannot transfer money because the account has not expired.");
+            if (Money - money < 0)
+                throw new BanksException("Error. Cannot transfer money due to a lack of it.");
+            Money -= money;
+            accountTo.AppendMoney(money);
+            _transactions.Add(new TransactionTransfer(new TransactionId(AccountId, _transactionId++), money, accountTo));
+        }
+
+        public void AddInterest()
+        {
+            SumInterest += Interest.CalculateInterest(Money);
+        }
+
+        public void ChargeInterest()
+        {
+            Money += SumInterest;
+        }
+
+        public void AddCommission()
+        {
+        }
+
+        public void ChargeCommission()
+        {
+        }
+
+        public void UpdateDaysTillExpiry()
+        {
+            DaysTillExpiry = System.Math.Max(0, --DaysTillExpiry);
+        }
+
+        public void ChangeCommission(decimal commission)
+        {
+        }
+
+        public void ChangeCreditLimit(decimal creditLimit)
+        {
+        }
+
+        public void ChangeBasicInterest(IInterest interest)
+        {
+        }
+
+        public void ChangeAdvancedInterest(IInterest interest)
+        {
+            Interest = interest;
+        }
+
+        public void ChangeTransferLimit(decimal transferLimit)
+        {
+            TransferLimit = transferLimit;
+        }
+
+        public void RevertTransaction(TransactionId transactionId)
+        {
+            ITransaction transaction = GetTransaction(transactionId);
+
+            decimal newMoney = transaction.RevertTransaction(Money);
+            if (newMoney < 0)
+                throw new BanksException($"Error. Impossible to revert the transaction ID: {transactionId.Id} due to a lack of money on the account.");
+
+            if (newMoney < Money && DaysTillExpiry > 0)
+                throw new BanksException($"Error. Impossible to revert the transaction ID: {transactionId.Id} because the deposit account hasn't reached expiry.");
+
+            Money = newMoney;
+            _transactions.Remove(transaction);
+        }
+
+        public decimal ExpectedMoneyChange(uint days)
+        {
+            decimal imaginaryMoney = Money;
+            decimal sumInterest = 0;
+            for (int i = 1; i <= days; ++i)
+            {
+                sumInterest += Interest.CalculateInterest(imaginaryMoney);
+                if (i % AverageMonthLengthInDays == 0)
+                {
+                    imaginaryMoney += sumInterest;
+                    sumInterest = 0;
+                }
+            }
+
+            imaginaryMoney += sumInterest;
+            return imaginaryMoney - Money;
+        }
+
+        public ITransaction GetTransaction(TransactionId transactionId)
+        {
+            ITransaction transaction = _transactions.FirstOrDefault(t => Equals(t.TransactionId, transactionId));
+            if (transaction == null)
+                throw new BanksException($"Error. Transaction ID: {transactionId.Id} doesn't exist.");
+            return transaction;
         }
     }
 }
