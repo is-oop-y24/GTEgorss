@@ -47,7 +47,7 @@ namespace Banks.Entities
             }
 
             BasicInterest basicInterest = new BasicInterest(debitInterest);
-            SendAllNotification(new Notification("Debit interest", DebitInterest.ToString(), basicInterest.ToString()));
+            SendAllNotification(new Notification("Debit interest", debitInterest.ToString(), basicInterest.ToString()));
             DebitInterest = basicInterest;
             _clients.SelectMany(c => c.BankAccounts).ToList().ForEach(a => a.ChangeBasicInterest(basicInterest));
         }
@@ -64,7 +64,7 @@ namespace Banks.Entities
                 throw new BanksException("Error. Deposit interest cannot be negative.");
 
             AdvancedInterest depositInterest = new AdvancedInterest(depositInterestRanges, defaultInterest);
-            SendAllNotification(new Notification("Deposit interest", DepositInterest.ToString(), depositInterest.ToString()));
+            SendAllNotification(new Notification("Deposit interest", depositInterest.ToString(), depositInterest.ToString()));
             DepositInterest = depositInterest;
             _clients.SelectMany(c => c.BankAccounts).ToList().ForEach(a => a.ChangeAdvancedInterest(depositInterest));
         }
@@ -82,7 +82,7 @@ namespace Banks.Entities
                 throw new BanksException("Error. Credit commission cannot be negative.");
             }
 
-            SendAllNotification(new Notification("Credit commision", CreditCommission.ToString(), creditCommission.ToString()));
+            SendAllNotification(new Notification("Credit commision", creditCommission.ToString(), creditCommission.ToString()));
             CreditCommission = creditCommission;
             _clients.SelectMany(c => c.BankAccounts).ToList().ForEach(a => a.ChangeCommission(creditCommission));
         }
@@ -94,7 +94,7 @@ namespace Banks.Entities
                 throw new BanksException($"Error. Credit limit cannot be positive.");
             }
 
-            SendAllNotification(new Notification("Credit limit", CreditLimit.ToString(), creditLimit.ToString()));
+            SendAllNotification(new Notification("Credit limit", creditLimit.ToString(), creditLimit.ToString()));
             CreditLimit = creditLimit;
             _clients.SelectMany(c => c.BankAccounts).ToList().ForEach(a => a.ChangeCreditLimit(creditLimit));
         }
@@ -106,7 +106,7 @@ namespace Banks.Entities
                 throw new BanksException($"Error. Transfer limit cannot be negative.");
             }
 
-            SendAllNotification(new Notification("Transfer limit", TransferLimit.ToString(), transferLimit.ToString()));
+            SendAllNotification(new Notification("Transfer limit", transferLimit.ToString(), transferLimit.ToString()));
             TransferLimit = transferLimit;
             _clients.SelectMany(c => c.BankAccounts).ToList().ForEach(a => a.ChangeTransferLimit(transferLimit));
         }

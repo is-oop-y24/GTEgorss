@@ -84,6 +84,8 @@ namespace Banks.Entities
                 throw new BanksException("Error. Cannot transfer negative amount of money.");
             if (Money - money < 0)
                 throw new BanksException("Error. Cannot transfer money due to a lack of it.");
+            if (Doubtful && money > TransferLimit)
+                throw new BanksException("Error. Doubtful account.");
             Money -= money;
             accountTo.AppendMoney(money);
             _transactions.Add(new TransactionTransfer(new TransactionId(AccountId, _transactionId++), money, accountTo));
