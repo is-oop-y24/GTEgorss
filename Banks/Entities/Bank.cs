@@ -7,11 +7,13 @@ namespace Banks.Entities
     public class Bank
     {
         private readonly List<Client> _clients;
+        private readonly List<Client> _subscribers;
         private uint _clientId = 10000000;
 
         public Bank()
         {
             _clients = new List<Client>();
+            _subscribers = new List<Client>();
         }
 
         public BankId BankId { get; private set; }
@@ -37,6 +39,7 @@ namespace Banks.Entities
             }
 
             _clients.Add(client);
+            _subscribers.Add(client);
         }
 
         public void ChangeDebitInterest(decimal debitInterest)
@@ -113,17 +116,21 @@ namespace Banks.Entities
 
         public void SendAllNotification(Notification notification)
         {
-            _clients.ForEach(c => c.ReceiveNotification(notification));
+            _subscribers.ForEach(s => s.ReceiveNotification(notification));
         }
 
         public void SubscribeClientNotification(ClientId clientId)
         {
-            GetClient(clientId).SubscribeNotification();
+            Client client = GetClient(clientId);
+            if (!_subscribers.Contains(client))
+            {
+                _subscribers.Add(client);
+            }
         }
 
         public void UnsubscribeClientNotification(ClientId clientId)
         {
-            GetClient(clientId).UnsubscribeNotification();
+            _subscribers.Remove(GetClient(clientId));
         }
 
         public void CreateClientDebitBankAccount(ClientId clientId)

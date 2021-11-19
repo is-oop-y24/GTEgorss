@@ -3,8 +3,10 @@ namespace Banks.Entities
     public interface ITransaction
     {
         public TransactionId TransactionId { get; }
-        public decimal Money { get; }
+        public IBankAccount Account { get; }
+        public decimal TransactionMoney { get; }
 
-        public decimal RevertTransaction(decimal accountMoney);
+        public void ExecuteTransaction();
+        public void RevertTransaction();
     }
 }

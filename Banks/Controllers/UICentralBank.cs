@@ -15,7 +15,7 @@ namespace Banks.Controllers
             _centralBank = CentralBank.GetInstance();
         }
 
-        public static void CentralBankMenu()
+        public void CentralBankMenu()
         {
             while (true)
             {
@@ -32,7 +32,7 @@ namespace Banks.Controllers
             }
         }
 
-        public static void Action(int command)
+        public void Action(int command)
         {
             switch (command)
             {

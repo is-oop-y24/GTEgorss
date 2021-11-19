@@ -14,7 +14,6 @@ namespace Banks.Entities
         {
             _bankAccounts = new List<IBankAccount>();
             _notifications = new List<Notification>();
-            IsSubscribedNotification = true;
         }
 
         public ClientId ClientId { get; private set; }
@@ -25,7 +24,6 @@ namespace Banks.Entities
         public bool Doubtful => Address != null && PassportNumber != null;
         public string PhoneNumber { get; private set; }
         public IReadOnlyList<IBankAccount> BankAccounts => _bankAccounts;
-        public bool IsSubscribedNotification { get; private set; }
         public IReadOnlyList<Notification> Notifications => _notifications;
 
         public void SetClientId(BankId bankId, uint clientId)
@@ -105,20 +103,7 @@ namespace Banks.Entities
 
         public void ReceiveNotification(Notification notification)
         {
-            if (IsSubscribedNotification)
-            {
-                _notifications.Add(notification);
-            }
-        }
-
-        public void UnsubscribeNotification()
-        {
-            IsSubscribedNotification = false;
-        }
-
-        public void SubscribeNotification()
-        {
-            IsSubscribedNotification = true;
+            _notifications.Add(notification);
         }
 
         public void RevertTransaction(TransactionId transactionId)

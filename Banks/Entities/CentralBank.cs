@@ -145,12 +145,12 @@ namespace Banks.Entities
 
         public void SubscribeClientNotification(ClientId clientId)
         {
-            GetClient(clientId).SubscribeNotification();
+            GetBank(new BankId(clientId.BankId)).SubscribeClientNotification(clientId);
         }
 
         public void UnsubscribeClientNotification(ClientId clientId)
         {
-            GetClient(clientId).UnsubscribeNotification();
+            GetBank(new BankId(clientId.BankId)).UnsubscribeClientNotification(clientId);
         }
 
         public void CreateClientDebitBankAccount(ClientId clientId)

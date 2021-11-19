@@ -7,7 +7,7 @@ namespace Banks
         private static void Main()
         {
             UICentralBank uiCentralBank = new UICentralBank();
-            UICentralBank.CentralBankMenu();
+            uiCentralBank.CentralBankMenu();
         }
     }
 }

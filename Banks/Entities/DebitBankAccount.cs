@@ -11,6 +11,7 @@ namespace Banks.Entities
         private const uint AverageMonthLengthInDays = 30;
         private readonly List<ITransaction> _transactions;
         private uint _transactionId = 10000000;
+
         public DebitBankAccount(AccountId accountId, IInterest interest, bool doubtful, decimal transferLimit)
         {
             AccountId = accountId;
@@ -35,30 +36,22 @@ namespace Banks.Entities
 
         public void AddMoney(decimal money)
         {
-            if (money < 0)
-            {
-                throw new BanksException("Error. It is impossible to add negative amount of money.");
-            }
-
-            Money += money;
-
-            if (GetTransaction(new TransactionId(AccountId, _transactionId + 1)) != null)
+            if (FindTransaction(new TransactionId(AccountId, _transactionId + 1)) != null)
                 throw new BanksException($"Error. Transaction ID: {AccountId.BankId} {AccountId.ClientId} {AccountId.Id} {_transactionId + 1} already exists.");
 
-            _transactions.Add(new TransactionAdd(new TransactionId(AccountId, _transactionId++), money));
+            TransactionAdd transaction = new TransactionAdd(new TransactionId(AccountId, _transactionId++), this, money);
+            transaction.ExecuteTransaction();
+            _transactions.Add(transaction);
         }
 
         public void WithdrawMoney(decimal money)
         {
-            if (money > Money) throw new BanksException("Error. Not enough money.");
-            if (money < 0) throw new BanksException("Error. Impossible to withdraw negative amount of money.");
-            if (Doubtful) throw new BanksException("Error. Impossible to withdraw money from doubtful account.");
-            Money -= money;
-
-            if (GetTransaction(new TransactionId(AccountId, _transactionId + 1)) != null)
+            if (FindTransaction(new TransactionId(AccountId, _transactionId + 1)) != null)
                 throw new BanksException($"Error. Transaction ID: {AccountId.BankId} {AccountId.ClientId} {AccountId.Id} {_transactionId + 1} already exists.");
 
-            _transactions.Add(new TransactionWithdraw(new TransactionId(AccountId, _transactionId++), money));
+            TransactionWithdraw transaction = new TransactionWithdraw(new TransactionId(AccountId, _transactionId++), this, money);
+            transaction.ExecuteTransaction();
+            _transactions.Add(transaction);
         }
 
         public void SubtractMoney(decimal money)
@@ -80,15 +73,12 @@ namespace Banks.Entities
 
         public void TransferMoney(decimal money, IBankAccount accountTo)
         {
-            if (money < 0)
-                throw new BanksException("Error. Cannot transfer negative amount of money.");
-            if (Money - money < 0)
-                throw new BanksException("Error. Cannot transfer money due to a lack of it.");
-            if (Doubtful && money > TransferLimit)
-                throw new BanksException("Error. Doubtful account.");
-            Money -= money;
-            accountTo.AppendMoney(money);
-            _transactions.Add(new TransactionTransfer(new TransactionId(AccountId, _transactionId++), money, accountTo));
+            if (FindTransaction(new TransactionId(AccountId, _transactionId + 1)) != null)
+                throw new BanksException($"Error. Transaction ID: {AccountId.BankId} {AccountId.ClientId} {AccountId.Id} {_transactionId + 1} already exists.");
+
+            TransactionTransfer transaction = new TransactionTransfer(new TransactionId(AccountId, _transactionId++), this, money, accountTo);
+            transaction.ExecuteTransaction();
+            _transactions.Add(transaction);
         }
 
         public void AddInterest()
@@ -138,12 +128,7 @@ namespace Banks.Entities
         public void RevertTransaction(TransactionId transactionId)
         {
             ITransaction transaction = GetTransaction(transactionId);
-
-            decimal newMoney = transaction.RevertTransaction(Money);
-            if (newMoney < 0)
-                throw new BanksException($"Error. Impossible to revert the transaction ID: {transactionId.Id} due to a lack of money on the account.");
-
-            Money = newMoney;
+            transaction.RevertTransaction();
             _transactions.Remove(transaction);
         }
 
@@ -163,6 +148,12 @@ namespace Banks.Entities
 
             imaginaryMoney += sumInterest;
             return imaginaryMoney - Money;
+        }
+
+        public ITransaction FindTransaction(TransactionId transactionId)
+        {
+            ITransaction transaction = _transactions.FirstOrDefault(t => Equals(t.TransactionId, transactionId));
+            return transaction;
         }
 
         public ITransaction GetTransaction(TransactionId transactionId)
