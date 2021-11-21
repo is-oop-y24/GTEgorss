@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Banks.Entities;
 using Banks.Tools;
@@ -18,6 +19,7 @@ namespace Banks.Controllers
         {
             while (true)
             {
+                Console.WriteLine("-------------------------");
                 Console.WriteLine("0 - Create client");
                 Console.WriteLine("1 - Change debit interest");
                 Console.WriteLine("2 - change deposit interest");
@@ -40,251 +42,250 @@ namespace Banks.Controllers
                     break;
                 }
 
-                Action(command);
+                try
+                {
+                    Action(command);
+                }
+                catch (BanksException e)
+                {
+                    Console.WriteLine(e);
+                    Console.ReadLine();
+                }
             }
         }
 
-        public void Action(int command)
+        private void Action(int command)
         {
             switch (command)
             {
                 case 0:
-                    try
-                    {
-                        BasicClientBuilder basicClientBuilder = new BasicClientBuilder();
-
-                        string firstName = string.Empty;
-                        while (firstName == string.Empty)
-                        {
-                            Console.WriteLine("Enter first name(non-empty):");
-                            firstName = Console.ReadLine();
-                            basicClientBuilder.SetFirstName(firstName);
-                        }
-
-                        string lastName = string.Empty;
-                        while (lastName == string.Empty)
-                        {
-                            Console.WriteLine("Enter last name(non-empty):");
-                            lastName = Console.ReadLine();
-                            basicClientBuilder.SetLastName(lastName);
-                        }
-
-                        Console.WriteLine("Enter address:");
-                        string address = Console.ReadLine();
-                        if (address == string.Empty)
-                        {
-                            basicClientBuilder.SetAddress(null);
-                        }
-                        else
-                        {
-                            basicClientBuilder.SetAddress(address);
-                        }
-
-                        Console.WriteLine("Enter passport number:");
-                        string passportNumber = Console.ReadLine();
-                        if (passportNumber == string.Empty)
-                        {
-                            basicClientBuilder.SetAddress(null);
-                        }
-                        else
-                        {
-                            basicClientBuilder.SetAddress(passportNumber);
-                        }
-
-                        Console.WriteLine("Enter telephone number:");
-                        string telephoneNumber = Console.ReadLine();
-                        if (passportNumber == string.Empty)
-                        {
-                            basicClientBuilder.SetAddress(null);
-                        }
-                        else
-                        {
-                            basicClientBuilder.SetAddress(telephoneNumber);
-                        }
-
-                        _bank.CreateClient(basicClientBuilder.GetProduct());
-                    }
-                    catch (BanksException e)
-                    {
-                        Console.WriteLine(e.Message);
-                        Console.ReadLine();
-                    }
-
+                    CreateClient();
                     break;
                 case 1:
-                    Console.WriteLine("Enter debit interest:");
-                    try
-                    {
-                        _bank.ChangeDebitInterest(Convert.ToDecimal(Console.ReadLine()));
-                    }
-                    catch (BanksException e)
-                    {
-                        Console.WriteLine(e.Message);
-                        Console.ReadLine();
-                    }
-
+                    ChangeDebitInterest();
                     break;
                 case 2:
-                    Console.WriteLine("Enter deposit interest:");
-                    try
-                    {
-                        _bank.ChangeDebitInterest(Convert.ToDecimal(Console.ReadLine()));
-                    }
-                    catch (BanksException e)
-                    {
-                        Console.WriteLine(e.Message);
-                        Console.ReadLine();
-                    }
-
+                    ChangeDepositInterest();
                     break;
                 case 3:
-                    Console.WriteLine("Enter deposit interest:");
-                    try
-                    {
-                        _bank.ChangeDebitInterest(Convert.ToDecimal(Console.ReadLine()));
-                    }
-                    catch (BanksException e)
-                    {
-                        Console.WriteLine(e.Message);
-                        Console.ReadLine();
-                    }
-
+                    ChangeDaysTillExpiry();
                     break;
                 case 4:
-                    Console.WriteLine("Enter credit commission:");
-                    try
-                    {
-                        _bank.ChangeCreditCommission(Convert.ToDecimal(Console.ReadLine()));
-                    }
-                    catch (BanksException e)
-                    {
-                        Console.WriteLine(e.Message);
-                        Console.ReadLine();
-                    }
-
+                    ChangeCreditCommission();
                     break;
                 case 5:
-                    Console.WriteLine("Enter credit limit:");
-                    try
-                    {
-                        _bank.ChangeCreditLimit(Convert.ToDecimal(Console.ReadLine()));
-                    }
-                    catch (BanksException e)
-                    {
-                        Console.WriteLine(e.Message);
-                        Console.ReadLine();
-                    }
-
+                    ChangeCreditLimit();
                     break;
                 case 6:
-                    Console.WriteLine("Enter transfer limit:");
-                    try
-                    {
-                        _bank.ChangeCreditLimit(Convert.ToDecimal(Console.ReadLine()));
-                    }
-                    catch (BanksException e)
-                    {
-                        Console.WriteLine(e.Message);
-                        Console.ReadLine();
-                    }
-
+                    ChangeTransferLimit();
                     break;
                 case 7:
-                    Console.WriteLine("Enter client ID:");
-                    uint idSubscribe = Convert.ToUInt32(Console.ReadLine());
-                    _bank.SubscribeClientNotification(new ClientId(_bank.BankId, idSubscribe));
+                    SubscribeClient();
                     break;
                 case 8:
-                    Console.WriteLine("Enter client ID:");
-                    uint idUnsub = Convert.ToUInt32(Console.ReadLine());
-                    _bank.UnsubscribeClientNotification(new ClientId(_bank.BankId, idUnsub));
+                    UnsubscribeClient();
                     break;
                 case 9:
-                    Console.WriteLine("Enter client IDs:");
-                    Console.WriteLine("From:");
-                    uint idFromClient = Convert.ToUInt32(Console.ReadLine());
-                    uint idFromAccount = Convert.ToUInt32(Console.ReadLine());
-                    Console.WriteLine("To:");
-                    uint idToClient = Convert.ToUInt32(Console.ReadLine());
-                    uint idToAccount = Convert.ToUInt32(Console.ReadLine());
-                    Console.WriteLine("Money:");
-                    decimal money = Convert.ToDecimal(Console.ReadLine());
-                    try
-                    {
-                        _bank.TransferMoney(new AccountId(_bank.BankId.Id, idFromClient, idFromAccount), money, _bank.GetBankAccount(new AccountId(_bank.BankId.Id, idToClient, idToAccount)));
-                    }
-                    catch (BanksException e)
-                    {
-                        Console.WriteLine(e.Message);
-                        Console.ReadLine();
-                    }
-
+                    TransferMoneyInsideBank();
                     break;
                 case 10:
-                    Console.WriteLine("Enter client ID:");
-                    uint idClient = Convert.ToUInt32(Console.ReadLine());
-                    try
-                    {
-                        UIClient uiClient = new UIClient(_bank.GetClient(new ClientId(_bank.BankId, idClient)));
-                        uiClient.ClientMenu();
-                    }
-                    catch (BanksException e)
-                    {
-                        Console.WriteLine(e.Message);
-                        Console.ReadLine();
-                    }
-
+                    GoToClient();
                     break;
                 case 11:
-                    _bank.Clients.ToList().ForEach(c =>
-                    {
-                        Console.WriteLine(
-                            c.ClientId.BankId + " " + c.ClientId.Id + " " + c.FirstName + " " + c.LastName);
-                    });
+                    ShowAccounts();
                     break;
                 case 12:
-                    try
-                    {
-                        Console.WriteLine("Enter client ID:");
-                        idClient = Convert.ToUInt32(Console.ReadLine());
-                        _bank.CreateClientCreditBankAccount(new ClientId(_bank.BankId, idClient));
-                    }
-                    catch (BanksException e)
-                    {
-                        Console.WriteLine(e.Message);
-                        Console.ReadLine();
-                    }
-
+                    CreateCreditAccount();
                     break;
                 case 13:
-                    try
-                    {
-                        Console.WriteLine("Enter client ID:");
-                        idClient = Convert.ToUInt32(Console.ReadLine());
-                        _bank.CreateClientDepositBankAccount(new ClientId(_bank.BankId, idClient));
-                    }
-                    catch (BanksException e)
-                    {
-                        Console.WriteLine(e.Message);
-                        Console.ReadLine();
-                    }
-
+                    CreateDepositAccount();
                     break;
                 case 14:
-                    try
-                    {
-                        Console.WriteLine("Enter client ID:");
-                        idClient = Convert.ToUInt32(Console.ReadLine());
-                        _bank.CreateClientDebitBankAccount(new ClientId(_bank.BankId, idClient));
-                    }
-                    catch (BanksException e)
-                    {
-                        Console.WriteLine(e.Message);
-                        Console.ReadLine();
-                    }
-
+                    CreateDebitAccount();
+                    break;
+                default:
+                    Console.ReadLine();
                     break;
             }
+        }
+
+        private void CreateClient()
+        {
+            BasicClientBuilder basicClientBuilder = new BasicClientBuilder();
+
+            string firstName = string.Empty;
+            while (firstName == string.Empty)
+            {
+                Console.WriteLine("Enter first name(non-empty):");
+                firstName = Console.ReadLine();
+                basicClientBuilder.SetFirstName(firstName);
+            }
+
+            string lastName = string.Empty;
+            while (lastName == string.Empty)
+            {
+                Console.WriteLine("Enter last name(non-empty):");
+                lastName = Console.ReadLine();
+                basicClientBuilder.SetLastName(lastName);
+            }
+
+            Console.WriteLine("Enter address:");
+            string address = Console.ReadLine();
+            if (address == string.Empty)
+            {
+                basicClientBuilder.SetAddress(null);
+            }
+            else
+            {
+                basicClientBuilder.SetAddress(address);
+            }
+
+            Console.WriteLine("Enter passport number:");
+            string passportNumber = Console.ReadLine();
+            if (passportNumber == string.Empty)
+            {
+                basicClientBuilder.SetAddress(null);
+            }
+            else
+            {
+                basicClientBuilder.SetAddress(passportNumber);
+            }
+
+            Console.WriteLine("Enter telephone number:");
+            string telephoneNumber = Console.ReadLine();
+            if (passportNumber == string.Empty)
+            {
+                basicClientBuilder.SetAddress(null);
+            }
+            else
+            {
+                basicClientBuilder.SetAddress(telephoneNumber);
+            }
+
+            _bank.CreateClient(basicClientBuilder.GetProduct());
+        }
+
+        private void ChangeDebitInterest()
+        {
+            Console.WriteLine("Enter debit interest:");
+            _bank.ChangeDebitInterest(Convert.ToDecimal(Console.ReadLine()));
+        }
+
+        private void ChangeDepositInterest()
+        {
+            Console.WriteLine("Enter deposit interest:");
+            string line = Console.ReadLine();
+            List<InterestRange> interestRanges = new List<InterestRange>();
+
+            while (line != "/")
+            {
+                Console.WriteLine("Type from(>=0): ");
+                line = Console.ReadLine();
+                if (line == "/") break;
+
+                decimal from = Convert.ToDecimal(line);
+                Console.WriteLine("Type to(>=0): ");
+                line = Console.ReadLine();
+                if (line == "/") break;
+
+                decimal to = Convert.ToDecimal(line);
+                Console.WriteLine("Type interest(>=0): ");
+                line = Console.ReadLine();
+                if (line == "/") break;
+
+                decimal interest = Convert.ToDecimal(line);
+                interestRanges.Add(new InterestRange(from, to, interest));
+            }
+
+            Console.WriteLine("Type default interest: ");
+            decimal defaultInterest = Convert.ToDecimal(Console.ReadLine());
+            _bank.ChangeDepositInterest(interestRanges, defaultInterest);
+        }
+
+        private void ChangeDaysTillExpiry()
+        {
+            Console.WriteLine("Enter days till expiry:");
+            _bank.ChangeDepositDaysTillExpiry(Convert.ToUInt32(Console.ReadLine()));
+        }
+
+        private void ChangeCreditCommission()
+        {
+            Console.WriteLine("Enter credit commission:");
+            _bank.ChangeCreditCommission(Convert.ToDecimal(Console.ReadLine()));
+        }
+
+        private void ChangeCreditLimit()
+        {
+            Console.WriteLine("Enter credit limit:");
+            _bank.ChangeCreditLimit(Convert.ToDecimal(Console.ReadLine()));
+        }
+
+        private void ChangeTransferLimit()
+        {
+            Console.WriteLine("Enter transfer limit:");
+            _bank.ChangeCreditLimit(Convert.ToDecimal(Console.ReadLine()));
+        }
+
+        private void SubscribeClient()
+        {
+            Console.WriteLine("Enter client ID:");
+            uint idSubscribe = Convert.ToUInt32(Console.ReadLine());
+            _bank.SubscribeClientNotification(new ClientId(_bank.BankId, idSubscribe));
+        }
+
+        private void UnsubscribeClient()
+        {
+            Console.WriteLine("Enter client ID:");
+            uint idUnsub = Convert.ToUInt32(Console.ReadLine());
+            _bank.UnsubscribeClientNotification(new ClientId(_bank.BankId, idUnsub));
+        }
+
+        private void TransferMoneyInsideBank()
+        {
+            Console.WriteLine("Enter client IDs:");
+            Console.WriteLine("From:");
+            uint idFromClient = Convert.ToUInt32(Console.ReadLine());
+            uint idFromAccount = Convert.ToUInt32(Console.ReadLine());
+            Console.WriteLine("To:");
+            uint idToClient = Convert.ToUInt32(Console.ReadLine());
+            uint idToAccount = Convert.ToUInt32(Console.ReadLine());
+            Console.WriteLine("Money:");
+            decimal money = Convert.ToDecimal(Console.ReadLine());
+            _bank.TransferMoney(new AccountId(_bank.BankId.Id, idFromClient, idFromAccount), money, _bank.GetBankAccount(new AccountId(_bank.BankId.Id, idToClient, idToAccount)));
+        }
+
+        private void GoToClient()
+        {
+            Console.WriteLine("Enter client ID:");
+            uint idClient = Convert.ToUInt32(Console.ReadLine());
+            UIClient uiClient = new UIClient(_bank.GetClient(new ClientId(_bank.BankId, idClient)));
+            uiClient.ClientMenu();
+        }
+
+        private void ShowAccounts()
+        {
+            _bank.Clients.ToList().ForEach(c => Console.WriteLine(c.ClientId.BankId + " " + c.ClientId.Id + " " + c.FirstName + " " + c.LastName));
+        }
+
+        private void CreateDebitAccount()
+        {
+            Console.WriteLine("Enter client ID:");
+            uint idClient = Convert.ToUInt32(Console.ReadLine());
+            _bank.CreateClientDebitBankAccount(new ClientId(_bank.BankId, idClient));
+        }
+
+        private void CreateCreditAccount()
+        {
+            Console.WriteLine("Enter client ID:");
+            uint idClient = Convert.ToUInt32(Console.ReadLine());
+            _bank.CreateClientCreditBankAccount(new ClientId(_bank.BankId, idClient));
+        }
+
+        private void CreateDepositAccount()
+        {
+            Console.WriteLine("Enter client ID:");
+            uint idClient = Convert.ToUInt32(Console.ReadLine());
+            _bank.CreateClientDepositBankAccount(new ClientId(_bank.BankId, idClient));
         }
     }
 }
