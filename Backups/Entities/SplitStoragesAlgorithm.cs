@@ -10,7 +10,7 @@ namespace Backups.Entities
     {
         public RestorePoint CreateStorage(BackupJob backupJob)
         {
-            RestorePoint restorePoint = new RestorePoint();
+            RestorePoint restorePoint = new RestorePoint(new SplitStoragesAlgorithm());
 
             backupJob.BackupJobObjects.ToList().ForEach(o =>
             {
@@ -29,6 +29,7 @@ namespace Backups.Entities
                 }
 
                 restorePoint.AddBackupObject(o);
+                restorePoint.AddBackupStorage(new BackupJobStorage(zipPath));
             });
 
             return restorePoint;

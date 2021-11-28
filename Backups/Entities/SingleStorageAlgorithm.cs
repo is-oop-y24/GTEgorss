@@ -10,7 +10,7 @@ namespace Backups.Entities
     {
         public RestorePoint CreateStorage(BackupJob backupJob)
         {
-            RestorePoint restorePoint = new RestorePoint();
+            RestorePoint restorePoint = new RestorePoint(new SingleStorageAlgorithm());
 
             string archiveName = "archive_" + (backupJob.Backup.RestorePoints.Count + 1) + ".zip";
             string zipPath = Path.Combine(backupJob.Backup.Path, archiveName);
@@ -28,6 +28,8 @@ namespace Backups.Entities
                     restorePoint.AddBackupObject(o);
                 });
             }
+
+            restorePoint.AddBackupStorage(new BackupJobStorage(zipPath));
 
             return restorePoint;
         }
