@@ -8,14 +8,13 @@ namespace Backups.Entities
 {
     public class SplitStoragesAlgorithm : IStorageAlgorithm
     {
-        public RestorePoint CreateStorage(BackupJob backupJob)
+        public RestorePoint CreateStorage(uint restorePointNumber, BackupJob backupJob)
         {
-            RestorePoint restorePoint = new RestorePoint(new SplitStoragesAlgorithm());
+            RestorePoint restorePoint = new RestorePoint(restorePointNumber, new SplitStoragesAlgorithm());
 
             backupJob.BackupJobObjects.ToList().ForEach(o =>
             {
-                string archiveName = Path.GetFileNameWithoutExtension(o.Path) + "_" +
-                                     (backupJob.Backup.RestorePoints.Count + 1) + ".zip";
+                string archiveName = Path.GetFileNameWithoutExtension(o.Path) + "_" + restorePointNumber + ".zip";
                 string zipPath = Path.Combine(backupJob.Backup.Path, archiveName);
 
                 if (File.Exists(zipPath))

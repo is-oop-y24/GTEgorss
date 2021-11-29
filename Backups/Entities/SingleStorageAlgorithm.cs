@@ -8,11 +8,11 @@ namespace Backups.Entities
 {
     public class SingleStorageAlgorithm : IStorageAlgorithm
     {
-        public RestorePoint CreateStorage(BackupJob backupJob)
+        public RestorePoint CreateStorage(uint restorePointNumber, BackupJob backupJob)
         {
-            RestorePoint restorePoint = new RestorePoint(new SingleStorageAlgorithm());
+            RestorePoint restorePoint = new RestorePoint(restorePointNumber, new SingleStorageAlgorithm());
 
-            string archiveName = "archive_" + (backupJob.Backup.RestorePoints.Count + 1) + ".zip";
+            string archiveName = "archive_" + restorePointNumber + ".zip";
             string zipPath = Path.Combine(backupJob.Backup.Path, archiveName);
 
             if (File.Exists(zipPath))

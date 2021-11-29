@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Backups.Entities;
+using BackupsExtra.Tools;
 
 namespace BackupsExtra.Entities
 {
@@ -21,6 +22,9 @@ namespace BackupsExtra.Entities
                 if (r.CreationTime < _dateTime)
                     restorePointsToDelete.Add(r);
             });
+
+            if (restorePoints.Count == restorePointsToDelete.Count)
+                throw new BackupsExtraException("Error. Forbidden to delete all restore points.");
 
             return restorePointsToDelete;
         }

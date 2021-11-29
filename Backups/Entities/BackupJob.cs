@@ -9,6 +9,7 @@ namespace Backups.Entities
     {
         private readonly List<IBackupJobObject> _backupJobObjects;
         private IStorageAlgorithm _storageAlgorithm;
+        private uint _restorePointNumber = 0;
         public BackupJob(string jobName, IRepository rootRepository, IStorageAlgorithm storageAlgorithm)
         {
             JobName = jobName;
@@ -45,7 +46,7 @@ namespace Backups.Entities
                 throw new BackupsException("Error. Some of the files in the job are missing. Impossible to create a restore point.");
             }
 
-            RestorePoint restorePoint = _storageAlgorithm.CreateStorage(this);
+            RestorePoint restorePoint = _storageAlgorithm.CreateStorage(_restorePointNumber++, this);
 
             Backup.AddRestorePoint(restorePoint);
         }

@@ -33,6 +33,9 @@ namespace BackupsExtra.Entities
                 restorePointsToDelete.Add(restorePoints[i]);
             }
 
+            if (restorePoints.Count == restorePointsToDelete.Count)
+                throw new BackupsExtraException("Error. Forbidden to delete all restore points.");
+
             return restorePointsToDelete;
         }
     }

@@ -30,5 +30,10 @@ namespace Backups.Entities
         {
             _restorePoints.Add(restorePoint);
         }
+
+        public void RemoveRestorePoint(RestorePoint restorePoint)
+        {
+            _restorePoints.Remove(restorePoint);
+        }
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Backups.Entities;
+using BackupsExtra.Tools;
 
 namespace BackupsExtra.Entities
 {
@@ -30,6 +31,9 @@ namespace BackupsExtra.Entities
             {
                 restorePointsToDelete = restorePointsToDelete.Intersect(l.FindPointsToDelete(restorePoints)).ToList();
             });
+
+            if (restorePoints.Count == restorePointsToDelete.Count)
+                throw new BackupsExtraException("Error. Forbidden to delete all restore points.");
 
             return restorePointsToDelete;
         }
