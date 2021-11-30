@@ -44,5 +44,11 @@ namespace Backups.Entities
         {
             _backupJobStorages.Add(backupJobStorage);
         }
+
+        public override string ToString()
+        {
+            return
+                $"Restore point number: {Number}, created: {CreationTime}, algorithm: {StorageAlgorithm.GetType()}";
+        }
     }
 }

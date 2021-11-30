@@ -8,7 +8,6 @@ namespace BackupsExtra.Tests
         [SetUp]
         public void SetUp()
         {
-            
         }
 
         [Test]

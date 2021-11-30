@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -8,9 +9,9 @@ namespace Backups.Entities
 {
     public class SingleStorageAlgorithm : IStorageAlgorithm
     {
-        public RestorePoint CreateStorage(uint restorePointNumber, BackupJob backupJob)
+        public RestorePoint CreateStorage(uint restorePointNumber, BackupJob backupJob, DateTime dateTime)
         {
-            RestorePoint restorePoint = new RestorePoint(restorePointNumber, new SingleStorageAlgorithm());
+            RestorePoint restorePoint = new RestorePoint(restorePointNumber, new SingleStorageAlgorithm(), dateTime);
 
             string archiveName = "archive_" + restorePointNumber + ".zip";
             string zipPath = Path.Combine(backupJob.Backup.Path, archiveName);

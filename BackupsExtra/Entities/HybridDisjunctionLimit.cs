@@ -37,5 +37,10 @@ namespace BackupsExtra.Entities
         {
             _limits.Add(basicLimit);
         }
+
+        public override string ToString()
+        {
+            return $"Hybrid disjunction limit: {_limits.Count} minor limits";
+        }
     }
 }

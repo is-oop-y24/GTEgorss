@@ -4,6 +4,6 @@ namespace Backups.Entities
 {
     public interface IStorageAlgorithm
     {
-        public RestorePoint CreateStorage(uint restorePointNumber, BackupJob backupJob);
+        public RestorePoint CreateStorage(uint restorePointNumber, BackupJob backupJob, DateTime dateTime);
     }
 }

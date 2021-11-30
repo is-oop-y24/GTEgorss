@@ -38,5 +38,10 @@ namespace BackupsExtra.Entities
 
             return restorePointsToDelete;
         }
+
+        public override string ToString()
+        {
+            return $"Number limit: number: {_number}";
+        }
     }
 }

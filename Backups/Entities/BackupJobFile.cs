@@ -17,5 +17,10 @@ namespace Backups.Entities
         }
 
         public string Path { get; }
+
+        public override string ToString()
+        {
+            return $"Backup job file: {Path}";
+        }
     }
 }

@@ -5,5 +5,7 @@ namespace Backups.Entities
         public string Path { get; }
 
         public void CreateRepository();
+
+        public string ToString();
     }
 }

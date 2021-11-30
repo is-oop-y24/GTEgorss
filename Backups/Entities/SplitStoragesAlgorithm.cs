@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
@@ -8,9 +9,9 @@ namespace Backups.Entities
 {
     public class SplitStoragesAlgorithm : IStorageAlgorithm
     {
-        public RestorePoint CreateStorage(uint restorePointNumber, BackupJob backupJob)
+        public RestorePoint CreateStorage(uint restorePointNumber, BackupJob backupJob, DateTime dateTime)
         {
-            RestorePoint restorePoint = new RestorePoint(restorePointNumber, new SplitStoragesAlgorithm());
+            RestorePoint restorePoint = new RestorePoint(restorePointNumber, new SplitStoragesAlgorithm(), dateTime);
 
             backupJob.BackupJobObjects.ToList().ForEach(o =>
             {
