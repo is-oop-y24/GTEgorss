@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Backups.Tools;
 
 namespace Backups.Entities
@@ -8,17 +9,24 @@ namespace Backups.Entities
     {
         private readonly List<RestorePoint> _restorePoints;
 
-        public Backup(string jobName, IRepository rootRepository)
+        public Backup(string jobName, IRepository rootRepository, bool rewrite = true)
         {
             RootRepository = rootRepository;
             Path = System.IO.Path.Combine(rootRepository.Path, jobName);
 
-            if (Directory.Exists(Path))
+            if (Directory.Exists(Path) && rewrite)
             {
-                throw new BackupsException($"Error. {Path} already exists.");
+                string[] files = Directory.GetFiles(Path);
+                files.ToList().ForEach(f =>
+                {
+                    File.SetAttributes(f, FileAttributes.Normal);
+                    File.Delete(f);
+                });
+                Directory.Delete(Path);
             }
 
             Directory.CreateDirectory(Path);
+
             _restorePoints = new List<RestorePoint>();
         }
 

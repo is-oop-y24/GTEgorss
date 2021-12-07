@@ -24,6 +24,13 @@ namespace Backups.Entities
             _creationTime = dateTime;
         }
 
+        public RestorePoint(uint number, IStorageAlgorithm storageAlgorithm, DateTime creationTime, List<IBackupJobObject> backupJobObjects, List<BackupJobStorage> backupJobStorages)
+            : this(number, storageAlgorithm, creationTime)
+        {
+            _backupJobObjects = new List<IBackupJobObject>(backupJobObjects);
+            _backupJobStorages = new List<BackupJobStorage>(backupJobStorages);
+        }
+
         public IReadOnlyList<IBackupJobObject> BackupJobObjects => _backupJobObjects;
         public IReadOnlyList<BackupJobStorage> BackupJobStorages => _backupJobStorages;
         public DateTime CreationTime => _creationTime;

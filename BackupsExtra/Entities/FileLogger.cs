@@ -14,6 +14,7 @@ namespace BackupsExtra.Entities
 
         public string Path { get; }
 
+        public string JobName { get; }
         public bool Timecode { get; private set; } = true;
 
         public void ChangeTimecode(bool timecode)
@@ -21,11 +22,19 @@ namespace BackupsExtra.Entities
             Timecode = timecode;
         }
 
+        public void Initialized()
+        {
+            WriteTimecode();
+            using StreamWriter file = new StreamWriter(Path, append: true);
+            file.WriteLine($"{JobName}: Initialized");
+            file.Close();
+        }
+
         public void Created(string str)
         {
             WriteTimecode();
             using StreamWriter file = new StreamWriter(Path, append: true);
-            file.WriteLine($"Created {str}");
+            file.WriteLine($"{JobName}: Created {str}");
             file.Close();
         }
 
@@ -33,7 +42,7 @@ namespace BackupsExtra.Entities
         {
             WriteTimecode();
             using StreamWriter file = new StreamWriter(Path, append: true);
-            file.WriteLine($"Changed from {prev} to {post}");
+            file.WriteLine($"{JobName}: Changed from {prev} to {post}");
             file.Close();
         }
 
@@ -41,7 +50,7 @@ namespace BackupsExtra.Entities
         {
             WriteTimecode();
             using StreamWriter file = new StreamWriter(Path, append: true);
-            file.WriteLine($"Deleted {str}");
+            file.WriteLine($"{JobName}: Deleted {str}");
             file.Close();
         }
 
@@ -49,7 +58,23 @@ namespace BackupsExtra.Entities
         {
             WriteTimecode();
             using StreamWriter file = new StreamWriter(Path, append: true);
-            file.WriteLine($"Restored {str}");
+            file.WriteLine($"{JobName}: Restored {str}");
+            file.Close();
+        }
+
+        public void Serialized()
+        {
+            WriteTimecode();
+            using StreamWriter file = new StreamWriter(Path, append: true);
+            file.WriteLine($"{JobName}: Serialized");
+            file.Close();
+        }
+
+        public void Deserialized()
+        {
+            WriteTimecode();
+            using StreamWriter file = new StreamWriter(Path, append: true);
+            file.WriteLine($"{JobName}: Deserialized");
             file.Close();
         }
 
@@ -58,7 +83,7 @@ namespace BackupsExtra.Entities
             if (Timecode)
             {
                 using StreamWriter file = new StreamWriter(Path, append: true);
-                file.WriteLine($"{DateTime.Now} ");
+                file.Write($"{DateTime.Now} ");
                 file.Close();
             }
         }

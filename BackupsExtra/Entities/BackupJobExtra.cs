@@ -3,76 +3,89 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Text;
+using System.Text.Json;
 using Backups.Entities;
 using BackupsExtra.Tools;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace BackupsExtra.Entities
 {
     public class BackupJobExtra
     {
-        private BackupJob _backupJob;
         private ILimit _limit;
         private ILogger _logger;
 
-        public BackupJobExtra(string jobName, IRepository rootRepository, IStorageAlgorithm storageAlgorithm, ILogger logger)
+        public BackupJobExtra(string jobName, IRepository rootRepository, IStorageAlgorithm storageAlgorithm, ILogger logger, bool rewrite = true)
         {
-            _backupJob = new BackupJob(jobName, rootRepository, storageAlgorithm);
-            _logger = logger;
-            _logger.Created(ToString());
+            BackupJob = new BackupJob(jobName, rootRepository, storageAlgorithm, rewrite);
 
-            ToJson();
+            _logger = logger ?? throw new BackupsExtraException("Error. Logger cannot be null.");
+            SerializeBackJobExtra();
+            _logger.Initialized();
+            _logger.Serialized();
         }
 
-        public BackupJobExtra(string jobName, IRepository rootRepository, IStorageAlgorithm storageAlgorithm, ILogger logger, ILimit limit)
-            : this(jobName, rootRepository, storageAlgorithm, logger)
+        public BackupJobExtra(string jobName, IRepository rootRepository, IStorageAlgorithm storageAlgorithm, ILogger logger, ILimit limit, bool rewrite = true)
+            : this(jobName, rootRepository, storageAlgorithm, logger, rewrite)
         {
             _limit = limit;
-
-            ToJson();
+            SerializeBackJobExtra();
         }
+
+        public BackupJobExtra(string path,  ILogger logger, ILimit limit = null)
+        {
+            _limit = limit;
+            _logger = logger ?? throw new BackupsExtraException("Error. Logger cannot be null.");
+            DeserializeBackJobExtra(path);
+            _logger.Deserialized();
+            _logger.Initialized();
+        }
+
+        public BackupJob BackupJob { get; private set; }
 
         public void AddObject(IBackupJobObject backupJobObject)
         {
-            _backupJob.AddObject(backupJobObject);
+            BackupJob.AddObject(backupJobObject);
             _logger.Created(backupJobObject.ToString());
 
-            // TODO cfg
+            SerializeBackJobExtra();
+            _logger.Serialized();
         }
 
         public void RemoveObject(IBackupJobObject backupJobObject)
         {
-            _backupJob.RemoveObject(backupJobObject);
+            BackupJob.RemoveObject(backupJobObject);
             _logger.Deleted(backupJobObject.ToString());
 
-            // TODO cfg
+            SerializeBackJobExtra();
+            _logger.Serialized();
         }
 
         public void CreateRestorePoint(DateTime dateTime)
         {
-            _backupJob.CreateRestorePoint(dateTime);
-            _logger.Created(_backupJob.Backup.RestorePoints.Last().ToString());
+            BackupJob.CreateRestorePoint(dateTime);
+            _logger.Created(BackupJob.Backup.RestorePoints.Last().ToString());
 
-            // TODO cfg
+            SerializeBackJobExtra();
+            _logger.Serialized();
         }
 
         public void CreateRestorePoint()
         {
-            _backupJob.CreateRestorePoint();
-            _logger.Created(_backupJob.Backup.RestorePoints.Last().ToString());
+            BackupJob.CreateRestorePoint();
+            _logger.Created(BackupJob.Backup.RestorePoints.Last().ToString());
 
-            // TODO cfg
+            SerializeBackJobExtra();
+            _logger.Serialized();
         }
 
         public void ChangeStorageAlgorithm(IStorageAlgorithm storageAlgorithm)
         {
-            IStorageAlgorithm storageAlgorithmPrev = _backupJob.StorageAlgorithm;
-            _backupJob.ChangeStorageAlgorithm(storageAlgorithm);
+            IStorageAlgorithm storageAlgorithmPrev = BackupJob.StorageAlgorithm;
+            BackupJob.ChangeStorageAlgorithm(storageAlgorithm);
             _logger.Changed(storageAlgorithmPrev.ToString(), storageAlgorithm.ToString());
 
-            // TODO cfg
+            SerializeBackJobExtra();
+            _logger.Serialized();
         }
 
         public void ChangeLimit(ILimit limit)
@@ -80,8 +93,6 @@ namespace BackupsExtra.Entities
             ILimit lim = _limit;
             _limit = limit;
             _logger.Changed(lim == null ? "null" : lim.ToString(), _limit.ToString());
-
-            // TODO cfg ?
         }
 
         public void CheckRestorePoints()
@@ -89,10 +100,12 @@ namespace BackupsExtra.Entities
             List<RestorePoint> restorePointsToDelete = FindPointsToDelete();
             restorePointsToDelete.ForEach(r =>
             {
-                _backupJob.Backup.RemoveRestorePoint(r);
+                BackupJob.Backup.RemoveRestorePoint(r);
             });
 
-            RestorePoint resultRestorePoint = restorePointsToDelete.Last();
+            RestorePoint resultRestorePoint = BackupJob.Backup.RestorePoints.First();
+
+            restorePointsToDelete.Reverse();
             restorePointsToDelete.ForEach(p =>
             {
                 if (p != resultRestorePoint)
@@ -101,7 +114,8 @@ namespace BackupsExtra.Entities
                 }
             });
 
-            MergeRestorePoints(resultRestorePoint, _backupJob.Backup.RestorePoints.First());
+            SerializeBackJobExtra();
+            _logger.Serialized();
         }
 
         public void RestoreRestorePointToDirectory(int restorePointNumber, string directoryPath)
@@ -113,7 +127,10 @@ namespace BackupsExtra.Entities
             });
 
             _logger.Restored(restorePoint.ToString());
-            _backupJob.Backup.RemoveRestorePoint(restorePoint);
+            BackupJob.Backup.RemoveRestorePoint(restorePoint);
+
+            SerializeBackJobExtra();
+            _logger.Serialized();
         }
 
         public void RestoreRestorePoint(int restorePointNumber)
@@ -131,69 +148,46 @@ namespace BackupsExtra.Entities
             });
 
             _logger.Restored(restorePoint.ToString());
-            _backupJob.Backup.RemoveRestorePoint(restorePoint);
+            BackupJob.Backup.RemoveRestorePoint(restorePoint);
+
+            SerializeBackJobExtra();
+            _logger.Serialized();
         }
 
         public override string ToString()
         {
-            return $"Job root: {_backupJob.Backup.Path}";
+            return $"Job root: {BackupJob.Backup.Path}";
         }
 
-        public void ToJson()
+        public void SerializeBackJobExtra()
         {
-            StringBuilder sb = new StringBuilder();
-            StringWriter sw = new StringWriter(sb);
-            using (JsonWriter writer = new JsonTextWriter(sw))
+            BackupJobExtraJsonFormat backupJobExtraJsonFormat = new BackupJobExtraJsonFormat(this);
+            string jsonString = JsonSerializer.Serialize<BackupJobExtraJsonFormat>(backupJobExtraJsonFormat);
+            Directory.CreateDirectory(
+                "/Users/egorsergeev/RiderProjects/GTEgorss/BackupsExtra/ExternallyAddedFiles/JSONs");
+            File.WriteAllText(
+                Path.Combine("/Users/egorsergeev/RiderProjects/GTEgorss/BackupsExtra/ExternallyAddedFiles/JSONs", BackupJob.JobName + ".json"), jsonString);
+        }
+
+        public void DeserializeBackJobExtra(string path)
+        {
+            string jsonString = File.ReadAllText(path);
+            BackupJobExtraJsonFormat backupJobExtraJsonFormat =
+                JsonSerializer.Deserialize<BackupJobExtraJsonFormat>(jsonString);
+
+            BackupJob = new BackupJob(backupJobExtraJsonFormat.JobName, RepositoryCreator.GetRepository(backupJobExtraJsonFormat.RepositoryData), StorageAlgorithmCreator.GetStorageAlgorithm(backupJobExtraJsonFormat.StorageAlgorithmData), false);
+
+            backupJobExtraJsonFormat.BackupJobObjectsData.ForEach(o =>
             {
-                writer.Formatting = Formatting.Indented;
-                writer.WriteStartObject();
-                writer.WritePropertyName("Path");
-                writer.WriteValue(_backupJob.Backup.Path);
-                writer.WritePropertyName("StorageAlgorithm");
-                writer.WriteValue($"{_backupJob.StorageAlgorithm}");
-                writer.WritePropertyName("Logger");
-                writer.WriteValue($"{_logger.GetType()}");
+                BackupJob.AddObject(BackupJobObjectCreator.GetBackupObject(o));
+            });
 
-                writer.WritePropertyName("BackupJobObjects");
-                writer.WriteStartArray();
-                _backupJob.BackupJobObjects.ToList().ForEach(o =>
-                {
-                    writer.WriteStartObject();
-                    writer.WritePropertyName("Type");
-                    writer.WriteValue(o.GetType());
+            BackupJob.RestorePointNumber = backupJobExtraJsonFormat.RestorePointNumber;
 
-                    // writer.WritePropertyName("Path");
-                    // writer.WriteValue(o.Path);
-                    writer.WriteEndObject();
-                });
-                writer.WriteEndArray();
-
-                writer.WritePropertyName("RestorePoints");
-                writer.WriteStartArray();
-                _backupJob.Backup.RestorePoints.ToList().ForEach(p =>
-                {
-                    writer.WriteStartObject();
-                    writer.WritePropertyName("Number");
-                    writer.WriteValue(p.Number); // TODO
-                    writer.WriteEndObject();
-                });
-                writer.WriteEndArray();
-                writer.WriteEndObject();
-
-                string json = sw.ToString();
-                writer.Close();
-                sw.Close();
-
-                string path = System.IO.Path.Combine("/Users/egorsergeev/RiderProjects/GTEgorss/BackupsExtra/JSONs", $"{_backupJob.JobName}.json");
-                if (!File.Exists(path))
-                {
-                    File.WriteAllText(path, json);
-                }
-                else
-                {
-                    File.AppendAllText(path, json);
-                }
-            }
+            backupJobExtraJsonFormat.RestorePointsData.ForEach(r =>
+            {
+                BackupJob.Backup.AddRestorePoint(RestorePointCreator.GetRestorePoint(r));
+            });
         }
 
         private static string GetDirectory(RestorePoint restorePoint, string filename)
@@ -240,12 +234,14 @@ namespace BackupsExtra.Entities
 
         private List<RestorePoint> FindPointsToDelete()
         {
-            return _limit.FindPointsToDelete(_backupJob.Backup.RestorePoints.ToList());
+            return _limit == null
+                ? new List<RestorePoint>()
+                : _limit.FindPointsToDelete(BackupJob.Backup.RestorePoints.ToList());
         }
 
         private RestorePoint GetRestorePoint(int number)
         {
-            RestorePoint restorePoint = _backupJob.Backup.RestorePoints.FirstOrDefault(p => p.Number == number);
+            RestorePoint restorePoint = BackupJob.Backup.RestorePoints.FirstOrDefault(p => p.Number == number);
             if (restorePoint == null)
                 throw new BackupsExtraException($"Error. There is no restore point with number {number}.");
 

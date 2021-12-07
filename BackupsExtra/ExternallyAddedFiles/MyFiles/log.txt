@@ -1,0 +1,60 @@
+12/08/2021 02:57:35 : Initialized
+12/08/2021 02:57:35 : Serialized
+12/08/2021 02:57:35 : Created Backup job file: /Users/egorsergeev/RiderProjects/GTEgorss/BackupsExtra/ExternallyAddedFiles/MyFiles/test1.txt
+12/08/2021 02:57:35 : Serialized
+12/08/2021 02:57:35 : Created Backup job file: /Users/egorsergeev/RiderProjects/GTEgorss/BackupsExtra/ExternallyAddedFiles/MyFiles/test2.txt
+12/08/2021 02:57:35 : Serialized
+12/08/2021 02:57:35 : Created Restore point number: 0, created: 12/08/2021 02:57:35, algorithm: Backups.Entities.SplitStoragesAlgorithm
+12/08/2021 02:57:35 : Serialized
+12/08/2021 02:57:35 : Deleted Backup job file: /Users/egorsergeev/RiderProjects/GTEgorss/BackupsExtra/ExternallyAddedFiles/MyFiles/test2.txt
+12/08/2021 02:57:35 : Serialized
+12/08/2021 02:57:35 : Created Restore point number: 1, created: 12/08/2021 02:57:35, algorithm: Backups.Entities.SplitStoragesAlgorithm
+12/08/2021 02:57:35 : Serialized
+12/08/2021 02:57:36 : Changed from null to Date limit: date: 12/08/2021 02:57:36
+12/08/2021 02:57:37 : Created Restore point number: 2, created: 12/08/2021 02:57:37, algorithm: Backups.Entities.SplitStoragesAlgorithm
+12/08/2021 02:57:37 : Serialized
+12/08/2021 02:57:37 : Serialized
+12/08/2021 02:57:37 : Initialized
+12/08/2021 02:57:37 : Serialized
+12/08/2021 02:57:37 : Created Backup job file: /Users/egorsergeev/RiderProjects/GTEgorss/BackupsExtra/ExternallyAddedFiles/MyFiles/test1.txt
+12/08/2021 02:57:37 : Serialized
+12/08/2021 02:57:37 : Created Backup job file: /Users/egorsergeev/RiderProjects/GTEgorss/BackupsExtra/ExternallyAddedFiles/MyFiles/test2.txt
+12/08/2021 02:57:37 : Serialized
+12/08/2021 02:57:37 : Created Restore point number: 0, created: 12/08/2021 02:57:37, algorithm: Backups.Entities.SplitStoragesAlgorithm
+12/08/2021 02:57:37 : Serialized
+12/08/2021 02:57:37 : Created Restore point number: 1, created: 12/08/2021 02:57:37, algorithm: Backups.Entities.SplitStoragesAlgorithm
+12/08/2021 02:57:37 : Serialized
+12/08/2021 02:57:37 : Deleted Backup job file: /Users/egorsergeev/RiderProjects/GTEgorss/BackupsExtra/ExternallyAddedFiles/MyFiles/test2.txt
+12/08/2021 02:57:37 : Serialized
+12/08/2021 02:57:37 : Created Restore point number: 2, created: 12/08/2021 02:57:37, algorithm: Backups.Entities.SplitStoragesAlgorithm
+12/08/2021 02:57:37 : Serialized
+12/08/2021 02:57:37 : Changed from null to Number limit: number: 1
+12/08/2021 02:57:37 : Serialized
+12/08/2021 02:57:37 : Initialized
+12/08/2021 02:57:37 : Serialized
+12/08/2021 02:57:37 : Created Backup job file: /Users/egorsergeev/RiderProjects/GTEgorss/BackupsExtra/ExternallyAddedFiles/MyFiles/test1.txt
+12/08/2021 02:57:37 : Serialized
+12/08/2021 02:57:37 : Created Backup job file: /Users/egorsergeev/RiderProjects/GTEgorss/BackupsExtra/ExternallyAddedFiles/MyFiles/test2.txt
+12/08/2021 02:57:37 : Serialized
+12/08/2021 02:57:37 : Created Restore point number: 0, created: 12/08/2021 02:57:37, algorithm: Backups.Entities.SplitStoragesAlgorithm
+12/08/2021 02:57:37 : Serialized
+12/08/2021 02:57:37 : Restored Restore point number: 0, created: 12/08/2021 02:57:37, algorithm: Backups.Entities.SplitStoragesAlgorithm
+12/08/2021 02:57:37 : Serialized
+12/08/2021 02:57:37 : Initialized
+12/08/2021 02:57:37 : Serialized
+12/08/2021 02:57:37 : Created Backup job file: /Users/egorsergeev/RiderProjects/GTEgorss/BackupsExtra/ExternallyAddedFiles/MyFiles/test1.txt
+12/08/2021 02:57:37 : Serialized
+12/08/2021 02:57:37 : Created Backup job file: /Users/egorsergeev/RiderProjects/GTEgorss/BackupsExtra/ExternallyAddedFiles/MyFiles/test2.txt
+12/08/2021 02:57:37 : Serialized
+12/08/2021 02:57:37 : Created Restore point number: 0, created: 12/08/2021 02:57:37, algorithm: Backups.Entities.SplitStoragesAlgorithm
+12/08/2021 02:57:37 : Serialized
+12/08/2021 02:57:42 : Restored Restore point number: 0, created: 12/08/2021 02:57:37, algorithm: Backups.Entities.SplitStoragesAlgorithm
+12/08/2021 02:57:42 : Serialized
+12/08/2021 02:57:42 : Initialized
+12/08/2021 02:57:42 : Serialized
+12/08/2021 02:57:42 : Created Backup job file: /Users/egorsergeev/RiderProjects/GTEgorss/BackupsExtra/ExternallyAddedFiles/MyFiles/test1.txt
+12/08/2021 02:57:42 : Serialized
+12/08/2021 02:57:42 : Created Backup job file: /Users/egorsergeev/RiderProjects/GTEgorss/BackupsExtra/ExternallyAddedFiles/MyFiles/test2.txt
+12/08/2021 02:57:42 : Serialized
+12/08/2021 02:57:42 : Created Restore point number: 0, created: 12/08/2021 02:57:42, algorithm: Backups.Entities.SplitStoragesAlgorithm
+12/08/2021 02:57:42 : Serialized
