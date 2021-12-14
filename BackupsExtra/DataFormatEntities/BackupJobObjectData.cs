@@ -4,10 +4,10 @@ namespace BackupsExtra.Entities
 {
     public class BackupJobObjectData
     {
-        public BackupJobObjectData(string path, string type)
+        public BackupJobObjectData(string path, string backupJobObjectType)
         {
             Path = path;
-            Type = type;
+            BackupJobObjectType = backupJobObjectType;
         }
 
         public BackupJobObjectData()
@@ -16,6 +16,6 @@ namespace BackupsExtra.Entities
 
         public string Path { get; set; }
 
-        public string Type { get; set; }
+        public string BackupJobObjectType { get; set; }
     }
 }

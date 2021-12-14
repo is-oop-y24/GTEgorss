@@ -4,10 +4,10 @@ namespace BackupsExtra.Entities
 {
     public class RepositoryData
     {
-        public RepositoryData(string path, string type)
+        public RepositoryData(string path, string repositoryType)
         {
             Path = path;
-            Type = type;
+            RepositoryType = repositoryType;
         }
 
         public RepositoryData()
@@ -15,6 +15,6 @@ namespace BackupsExtra.Entities
         }
 
         public string Path { get; set; }
-        public string Type { get; set; }
+        public string RepositoryType { get; set; }
     }
 }

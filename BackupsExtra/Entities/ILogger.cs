@@ -4,15 +4,15 @@ namespace BackupsExtra.Entities
 {
     public interface ILogger
     {
-        public string JobName { get; }
-        public bool Timecode { get; }
-        public void ChangeTimecode(bool timecode);
-        public void Initialized();
-        public void Created(string str);
-        public void Changed(string prev, string post);
-        public void Deleted(string str);
-        public void Restored(string str);
-        public void Serialized();
-        public void Deserialized();
+        string JobName { get; }
+        bool Timecode { get; }
+        void ChangeTimecode(bool timecode);
+        void Initialized();
+        void Created(string str);
+        void Changed(string prev, string post);
+        void Deleted(string str);
+        void Restored(string str);
+        void Serialized();
+        void Deserialized();
     }
 }

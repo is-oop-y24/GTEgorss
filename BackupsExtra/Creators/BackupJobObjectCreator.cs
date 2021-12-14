@@ -7,12 +7,13 @@ namespace BackupsExtra.Entities
     {
         public static IBackupJobObject GetBackupObject(BackupJobObjectData backupJobObjectData)
         {
-            if (backupJobObjectData.Type == new BackupJobFile(backupJobObjectData.Path).GetType().ToString())
+            IBackupJobObject backupJobObject = new BackupJobFile(backupJobObjectData.Path);
+            if (backupJobObjectData.BackupJobObjectType == backupJobObject.GetType().ToString())
             {
-                return new BackupJobFile(backupJobObjectData.Path);
+                return backupJobObject;
             }
 
-            throw new BackupsExtraException($"Error. There is no backup object of type: {backupJobObjectData.Type}.");
+            throw new BackupsExtraException($"Error. There is no backup object of type: {backupJobObjectData.BackupJobObjectType}.");
         }
     }
 }

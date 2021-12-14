@@ -7,12 +7,13 @@ namespace BackupsExtra.Entities
     {
         public static IRepository GetRepository(RepositoryData repositoryData)
         {
-            if (repositoryData.Type == new FileDirectory(repositoryData.Path).GetType().ToString())
+            IRepository repository = new FileDirectory(repositoryData.Path);
+            if (repositoryData.RepositoryType == repository.GetType().ToString())
             {
-                return new FileDirectory(repositoryData.Path);
+                return repository;
             }
 
-            throw new BackupsExtraException($"Error. There is no repository of type: {repositoryData.Type}.");
+            throw new BackupsExtraException($"Error. There is no repository of type: {repositoryData.RepositoryType}.");
         }
     }
 }

@@ -14,7 +14,7 @@ namespace BackupsExtra
             FileDirectory directory =
                 new FileDirectory("/Users/egorsergeev/RiderProjects/GTEgorss/BackupsExtra/ExternallyAddedFiles/Repositories");
             directory.CreateRepository();
-            BackupJobExtra job = new BackupJobExtra(jobName, directory, new SplitStoragesAlgorithm(), new FileLogger("/Users/egorsergeev/RiderProjects/GTEgorss/BackupsExtra/ExternallyAddedFiles/MyFiles/log.txt"), true);
+            BackupJobExtra job = new BackupJobExtra(jobName, directory, new SplitStoragesAlgorithm(), new FileLogger("/Users/egorsergeev/RiderProjects/GTEgorss/BackupsExtra/ExternallyAddedFiles/MyFiles/log.txt"), "/Users/egorsergeev/RiderProjects/GTEgorss/BackupsExtra/ExternallyAddedFiles/JSONs", true);
             job.AddObject(
                 new BackupJobFile("/Users/egorsergeev/RiderProjects/GTEgorss/BackupsExtra/ExternallyAddedFiles/MyFiles/test1.txt"));
             job.AddObject(
@@ -33,7 +33,7 @@ namespace BackupsExtra
             job.ChangeLimit(new DateLimit(DateTime.Now));
             Thread.Sleep(1000);
             job.CreateRestorePoint();
-            job.CheckRestorePoints();
+            job.FilterRestorePoints();
         }
 
         private static void BackupExtra_NumberLimit()
@@ -45,7 +45,7 @@ namespace BackupsExtra
                 new BackupJobFile("/Users/egorsergeev/RiderProjects/GTEgorss/BackupsExtra/ExternallyAddedFiles/MyFiles/test2.txt"));
             job.CreateRestorePoint();
             job.ChangeLimit(new NumberLimit(1));
-            job.CheckRestorePoints();
+            job.FilterRestorePoints();
         }
 
         private static void BackupExtra_RestoreRestorePointToDirectory()

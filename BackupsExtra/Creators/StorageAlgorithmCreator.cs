@@ -7,17 +7,21 @@ namespace BackupsExtra.Entities
     {
         public static IStorageAlgorithm GetStorageAlgorithm(StorageAlgorithmData storageAlgorithmData)
         {
-            if (storageAlgorithmData.Type == new SplitStoragesAlgorithm().GetType().ToString())
+            IStorageAlgorithm storageAlgorithm = new SplitStoragesAlgorithm();
+
+            if (storageAlgorithmData.StorageAlgorithmType == storageAlgorithm.GetType().ToString())
             {
-                return new SplitStoragesAlgorithm();
+                return storageAlgorithm;
             }
 
-            if (storageAlgorithmData.Type == new SingleStorageAlgorithm().GetType().ToString())
+            storageAlgorithm = new SingleStorageAlgorithm();
+
+            if (storageAlgorithmData.StorageAlgorithmType == storageAlgorithm.GetType().ToString())
             {
-                return new SingleStorageAlgorithm();
+                return storageAlgorithm;
             }
 
-            throw new BackupsExtraException($"Error. There is no storage algorithm of type: {storageAlgorithmData.Type}.");
+            throw new BackupsExtraException($"Error. There is no storage algorithm of type: {storageAlgorithmData.StorageAlgorithmType}.");
         }
     }
 }

@@ -4,15 +4,15 @@ namespace BackupsExtra.Entities
 {
     public class StorageAlgorithmData
     {
-        public StorageAlgorithmData(string type)
+        public StorageAlgorithmData(string storageAlgorithmType)
         {
-            Type = type;
+            StorageAlgorithmType = storageAlgorithmType;
         }
 
         public StorageAlgorithmData()
         {
         }
 
-        public string Type { get; set; }
+        public string StorageAlgorithmType { get; set; }
     }
 }
