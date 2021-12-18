@@ -3,25 +3,54 @@ using BackupsExtra.Tools;
 
 namespace BackupsExtra.Entities
 {
-    public class StorageAlgorithmCreator
+    public enum StorageAlgorithmType
     {
-        public static IStorageAlgorithm GetStorageAlgorithm(StorageAlgorithmData storageAlgorithmData)
+        /// <summary>
+        /// Split storage algorithm
+        /// </summary>
+        Split,
+
+        /// <summary>
+        /// Single storage algorithm
+        /// </summary>
+        Single,
+
+        /// <summary>
+        /// if doesn't exist
+        /// </summary>
+        Undefined,
+    }
+
+    public static class StorageAlgorithmCreator
+    {
+        public static IStorageAlgorithm From(StorageAlgorithmData storageAlgorithmData)
         {
-            IStorageAlgorithm storageAlgorithm = new SplitStoragesAlgorithm();
-
-            if (storageAlgorithmData.StorageAlgorithmType == storageAlgorithm.GetType().ToString())
+            if (storageAlgorithmData.StorageAlgorithmType == StorageAlgorithmType.Split)
             {
-                return storageAlgorithm;
+                return new SplitStoragesAlgorithm();
             }
 
-            storageAlgorithm = new SingleStorageAlgorithm();
-
-            if (storageAlgorithmData.StorageAlgorithmType == storageAlgorithm.GetType().ToString())
+            if (storageAlgorithmData.StorageAlgorithmType == StorageAlgorithmType.Single)
             {
-                return storageAlgorithm;
+                return new SingleStorageAlgorithm();
             }
 
-            throw new BackupsExtraException($"Error. There is no storage algorithm of type: {storageAlgorithmData.StorageAlgorithmType}.");
+            throw new BackupsExtraException($"Error. There is no storage algorithm of type: {storageAlgorithmData.StorageAlgorithmType}");
+        }
+
+        public static StorageAlgorithmType To(string storageAlgorithmType)
+        {
+            if (storageAlgorithmType == "Backups.Entities.SplitStoragesAlgorithm")
+            {
+                return StorageAlgorithmType.Split;
+            }
+
+            if (storageAlgorithmType == "Backups.Entities.SingleStorageAlgorithm")
+            {
+                return StorageAlgorithmType.Single;
+            }
+
+            return StorageAlgorithmType.Undefined;
         }
     }
 }

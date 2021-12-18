@@ -3,17 +3,39 @@ using BackupsExtra.Tools;
 
 namespace BackupsExtra.Entities
 {
-    public class BackupJobObjectCreator
+    public enum BackupJobObjectType
     {
-        public static IBackupJobObject GetBackupObject(BackupJobObjectData backupJobObjectData)
+        /// <summary>
+        /// BackupJobFile
+        /// </summary>
+        File,
+
+        /// <summary>
+        /// if doesn't exist
+        /// </summary>
+        Undefined,
+    }
+
+    public static class BackupJobObjectCreator
+    {
+        public static IBackupJobObject From(BackupJobObjectData backupJobObjectData)
         {
-            IBackupJobObject backupJobObject = new BackupJobFile(backupJobObjectData.Path);
-            if (backupJobObjectData.BackupJobObjectType == backupJobObject.GetType().ToString())
+            if (backupJobObjectData.BackupJobObjectType == BackupJobObjectType.File)
             {
-                return backupJobObject;
+                return new BackupJobFile(backupJobObjectData.Path);
             }
 
             throw new BackupsExtraException($"Error. There is no backup object of type: {backupJobObjectData.BackupJobObjectType}.");
+        }
+
+        public static BackupJobObjectType To(string backupObjectType)
+        {
+            if (backupObjectType == "Backups.Entities.BackupJobFile")
+            {
+                return BackupJobObjectType.File;
+            }
+
+            return BackupJobObjectType.Undefined;
         }
     }
 }

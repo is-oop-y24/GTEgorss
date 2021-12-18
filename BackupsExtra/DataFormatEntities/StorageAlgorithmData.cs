@@ -6,13 +6,13 @@ namespace BackupsExtra.Entities
     {
         public StorageAlgorithmData(string storageAlgorithmType)
         {
-            StorageAlgorithmType = storageAlgorithmType;
+            StorageAlgorithmType = StorageAlgorithmCreator.To(storageAlgorithmType);
         }
 
         public StorageAlgorithmData()
         {
         }
 
-        public string StorageAlgorithmType { get; set; }
+        public StorageAlgorithmType StorageAlgorithmType { get; set; }
     }
 }

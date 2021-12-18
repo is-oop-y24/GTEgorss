@@ -7,7 +7,7 @@ namespace BackupsExtra.Entities
         public BackupJobObjectData(string path, string backupJobObjectType)
         {
             Path = path;
-            BackupJobObjectType = backupJobObjectType;
+            BackupJobObjectType = BackupJobObjectCreator.To(backupJobObjectType);
         }
 
         public BackupJobObjectData()
@@ -16,6 +16,6 @@ namespace BackupsExtra.Entities
 
         public string Path { get; set; }
 
-        public string BackupJobObjectType { get; set; }
+        public BackupJobObjectType BackupJobObjectType { get; set; }
     }
 }

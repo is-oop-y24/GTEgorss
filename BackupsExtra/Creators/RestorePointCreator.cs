@@ -3,14 +3,14 @@ using Backups.Entities;
 
 namespace BackupsExtra.Entities
 {
-    public class RestorePointCreator
+    public static class RestorePointCreator
     {
         public static RestorePoint GetRestorePoint(RestorePointData restorePointData)
         {
             List<IBackupJobObject> backupJobObjects = new List<IBackupJobObject>();
             restorePointData.BackupJobObjectsData.ForEach(o =>
             {
-                backupJobObjects.Add(BackupJobObjectCreator.GetBackupObject(o));
+                backupJobObjects.Add(BackupJobObjectCreator.From(o));
             });
 
             List<BackupJobStorage> backupJobStorages = new List<BackupJobStorage>();
@@ -19,7 +19,7 @@ namespace BackupsExtra.Entities
                 backupJobStorages.Add(new BackupJobStorage(s.Path));
             });
 
-            IStorageAlgorithm storageAlgorithm = StorageAlgorithmCreator.GetStorageAlgorithm(restorePointData.StorageAlgorithmData);
+            IStorageAlgorithm storageAlgorithm = StorageAlgorithmCreator.From(restorePointData.StorageAlgorithmData);
 
             return new RestorePoint(restorePointData.Number, storageAlgorithm, restorePointData.CreationTime, backupJobObjects, backupJobStorages);
         }

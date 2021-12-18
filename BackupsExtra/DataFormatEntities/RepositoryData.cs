@@ -7,7 +7,7 @@ namespace BackupsExtra.Entities
         public RepositoryData(string path, string repositoryType)
         {
             Path = path;
-            RepositoryType = repositoryType;
+            RepositoryType = RepositoryCreator.To(repositoryType);
         }
 
         public RepositoryData()
@@ -15,6 +15,6 @@ namespace BackupsExtra.Entities
         }
 
         public string Path { get; set; }
-        public string RepositoryType { get; set; }
+        public RepositoryType RepositoryType { get; set; }
     }
 }

@@ -3,17 +3,39 @@ using BackupsExtra.Tools;
 
 namespace BackupsExtra.Entities
 {
-    public class RepositoryCreator
+    public enum RepositoryType
     {
-        public static IRepository GetRepository(RepositoryData repositoryData)
+        /// <summary>
+        /// File directory
+        /// </summary>
+        FileDirectory,
+
+        /// <summary>
+        /// if doesn't exist
+        /// </summary>
+        Undefined,
+    }
+
+    public static class RepositoryCreator
+    {
+        public static IRepository From(RepositoryData repositoryData)
         {
-            IRepository repository = new FileDirectory(repositoryData.Path);
-            if (repositoryData.RepositoryType == repository.GetType().ToString())
+            if (repositoryData.RepositoryType == RepositoryType.FileDirectory)
             {
-                return repository;
+                return new FileDirectory(repositoryData.Path);
             }
 
             throw new BackupsExtraException($"Error. There is no repository of type: {repositoryData.RepositoryType}.");
+        }
+
+        public static RepositoryType To(string repositoryType)
+        {
+            if (repositoryType == "Backups.Entities.FileDirectory")
+            {
+                return RepositoryType.FileDirectory;
+            }
+
+            return RepositoryType.Undefined;
         }
     }
 }

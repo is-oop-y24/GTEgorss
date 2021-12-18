@@ -174,11 +174,11 @@ namespace BackupsExtra.Entities
             BackupJobExtraJsonFormat backupJobExtraJsonFormat =
                 JsonSerializer.Deserialize<BackupJobExtraJsonFormat>(jsonString);
 
-            BackupJob = new BackupJob(backupJobExtraJsonFormat.JobName, RepositoryCreator.GetRepository(backupJobExtraJsonFormat.RepositoryData), StorageAlgorithmCreator.GetStorageAlgorithm(backupJobExtraJsonFormat.StorageAlgorithmData), false);
+            BackupJob = new BackupJob(backupJobExtraJsonFormat.JobName, RepositoryCreator.From(backupJobExtraJsonFormat.RepositoryData), StorageAlgorithmCreator.From(backupJobExtraJsonFormat.StorageAlgorithmData), false);
 
             backupJobExtraJsonFormat.BackupJobObjectsData.ForEach(o =>
             {
-                BackupJob.AddObject(BackupJobObjectCreator.GetBackupObject(o));
+                BackupJob.AddObject(BackupJobObjectCreator.From(o));
             });
 
             BackupJob.RestorePointNumber = backupJobExtraJsonFormat.RestorePointNumber;
@@ -189,7 +189,7 @@ namespace BackupsExtra.Entities
             });
         }
 
-        private static string GetDirectory(RestorePoint restorePoint, string filename)
+        private string GetDirectory(RestorePoint restorePoint, string filename)
         {
             IBackupJobObject jobObject =
                 restorePoint.BackupJobObjects.FirstOrDefault(o => Path.GetFileName(o.Path) == filename);

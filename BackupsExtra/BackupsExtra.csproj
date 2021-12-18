@@ -28,6 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="ExternallyAddedFiles\JSONs" />
     <Folder Include="ExternallyAddedFiles\Repositories" />
     <Folder Include="ExternallyAddedFiles\Restored_test5" />
   </ItemGroup>
