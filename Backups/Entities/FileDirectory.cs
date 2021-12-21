@@ -15,5 +15,10 @@ namespace Backups.Entities
         {
             Directory.CreateDirectory(Path);
         }
+
+        public override string ToString()
+        {
+            return $"File directory: {Path}";
+        }
     }
 }

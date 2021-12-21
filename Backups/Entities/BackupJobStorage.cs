@@ -1,16 +1,15 @@
-using System;
 using System.IO;
 using Backups.Tools;
 
 namespace Backups.Entities
 {
-    public class BackupJobFile : IBackupJobObject
+    public class BackupJobStorage
     {
-        public BackupJobFile(string path)
+        public BackupJobStorage(string path)
         {
             if (!File.Exists(path))
             {
-                throw new BackupsException($"Error. Couldn't create BackupJobObject since {path} doesn't exist.");
+                throw new BackupsException($"Error. Storage {path} doesn't exist.");
             }
 
             Path = path;
@@ -20,7 +19,7 @@ namespace Backups.Entities
 
         public override string ToString()
         {
-            return $"Backup job file: {Path}";
+            return $"Backup storage: {Path}";
         }
     }
 }
